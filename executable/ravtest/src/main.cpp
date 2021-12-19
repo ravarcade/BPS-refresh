@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sqlite3.h>
 
 class CFoo
 {
@@ -15,6 +16,7 @@ public:
 
 int main(int, char**)
 {
+    std::cout << sqlite3_libversion() << '\n';
     for (int i = 0; i < 10; i++) {
         std::cout << "Hello, world!\n";
     }
