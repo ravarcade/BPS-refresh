@@ -1,0 +1,4 @@
+namespace engine
+{
+void dummy();
+}
