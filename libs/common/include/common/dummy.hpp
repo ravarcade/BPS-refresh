@@ -1,4 +1,0 @@
-namespace common
-{
-void dummy();
-}

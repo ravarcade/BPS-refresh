@@ -1,8 +1,6 @@
 #include <iostream>
 #include <sqlite3.h>
-#include "common/dummy.hpp"
 #include "engine/dummy.hpp"
-#include "importer/dummy.hpp"
 
 class CFoo
 {
@@ -20,8 +18,6 @@ public:
 int main(int, char**)
 {
     std::cout << sqlite3_libversion() << '\n';
-    common::dummy();
-    importer::dummy();
     engine::dummy();
     for (int i = 0; i < 10; i++) {
         std::cout << "Hello, world!" << std::endl;

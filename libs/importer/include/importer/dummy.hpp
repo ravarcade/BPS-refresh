@@ -1,4 +1,0 @@
-namespace importer
-{
-void dummy();
-}

@@ -1,13 +1,12 @@
 set(MODULE_NAME importer)
 
 set(SOURCES 
-    src/dummy.cpp
     src/bmp.cpp
+    src/tga.cpp
 )
 
 set(HEADERS 
-    include/importer/dummy.hpp
-    include/importer/tmp.hpp
+    include/importer/decode.hpp
 )
 
 add_library(${MODULE_NAME} ${SOURCES} ${HEADERS}) 
@@ -17,5 +16,7 @@ target_include_directories(${MODULE_NAME} PUBLIC include)
 target_link_libraries(${MODULE_NAME} 
     PUBLIC
         # bps::config              # exposed as public, so ut don't need to add it in target_link_libraries
-    PRIVATE 
+    # PRIVATE 
         bps::common)
+
+add_subdirectory(ut)

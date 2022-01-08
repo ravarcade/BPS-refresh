@@ -1,125 +1,153 @@
+#include "common/Image.hpp"
 #include "common/types.hpp"
 
-int version()
+
+namespace
 {
-    return 1;
+using namespace common;
+
+const uint16_t BM_TAG = 0x4d42;
+
+#pragma pack(2)
+typedef struct
+{
+    int16_t bfType; // must be 'BM'
+    uint32_t bfSize; // size of the whole .bmp file
+    int16_t bfReserved1; // must be 0
+    int16_t bfReserved2; // must be 0
+    uint32_t bfOffBits;
+} SBITMAPFILEHEADER;
+
+typedef struct
+{
+    uint32_t biSize; // size of the structure
+    int32_t biWidth; // image width
+    int32_t biHeight; // image height
+    int16_t biPlanes; // bitplanes
+    int16_t biBitCount; // resolution
+    uint32_t biCompression; // compression
+    uint32_t biSizeImage; // size of the image
+    int32_t biXPelsPerMeter; // pixels per meter X
+    int32_t biYPelsPerMeter; // pixels per meter Y
+    uint32_t biClrUsed; // colors used
+    uint32_t biClrImportant; // important colors
+} SBITMAPINFOHEADER;
+#pragma pack()
+
+uint32_t *getColorMap(const uint8_t *&src, uint32_t size)
+{
+    static uint32_t colorMap[256];
+    uint8_t* cm = (uint8_t*)colorMap;
+    for (; size > 0; --size)
+    {
+        *cm++ = src[2];
+        *cm++ = src[1];
+        *cm++ = src[0];
+        *cm++ = 255;
+        src += 4;
+    }
+
+    return colorMap;
 }
 
-// using namespace BAMS;
+} // namespace
 
-// #pragma pack(2)
+namespace Importer
+{
+bool DecodeBMP(Image& dst, const MemoryBuffer &&srcMemBuf)
+{
+    if (srcMemBuf.size() < sizeof(SBITMAPFILEHEADER)) return false;
 
-// typedef struct
-// {
-// 	WORD    bfType;        // must be 'BM'
-// 	DWORD   bfSize;        // size of the whole .bmp file
-// 	WORD    bfReserved1;   // must be 0
-// 	WORD    bfReserved2;   // must be 0
-// 	DWORD   bfOffBits;
-// } SBITMAPFILEHEADER;
+    auto hdr = reinterpret_cast<const SBITMAPFILEHEADER*>(srcMemBuf.data());
+    auto inf = reinterpret_cast<const SBITMAPINFOHEADER*>(srcMemBuf.data() + sizeof(SBITMAPFILEHEADER));
+    auto* src = srcMemBuf.data() + sizeof(SBITMAPFILEHEADER) + sizeof(SBITMAPINFOHEADER);
 
-// typedef struct
-// {
-// 	DWORD  biSize;            // size of the structure
-// 	LONG   biWidth;           // image width
-// 	LONG   biHeight;          // image height
-// 	WORD   biPlanes;          // bitplanes
-// 	WORD   biBitCount;        // resolution
-// 	DWORD  biCompression;     // compression
-// 	DWORD  biSizeImage;       // size of the image
-// 	LONG   biXPelsPerMeter;   // pixels per meter X
-// 	LONG   biYPelsPerMeter;   // pixels per meter Y
-// 	DWORD  biClrUsed;         // colors used
-// 	DWORD  biClrImportant;    // important colors
-// } SBITMAPINFOHEADER;
+    if (hdr->bfType != BM_TAG or inf->biCompression != 0) return false;
 
-// #pragma pack()
+    int32_t tempHeight = inf->biHeight;
+    bool vflip = tempHeight < 0;
+    if (vflip) tempHeight = -tempHeight;
 
-// /**
-// * Decode TGA to RGBx texture
-// */
-// bool DecodeBMP(Image *dst, uint8_t *src, size_t size, TempMemory &tmp)
-// {
-// 	if (size < sizeof(BITMAPFILEHEADER))
-// 		return false;
+    dst.createEmpty(inf->biWidth, inf->biHeight);
+    uint8_t* dstBin = dst.editMipmap();
+    uint32_t pitch = dst.pitch;
+    uint32_t width = dst.width;
+    uint32_t height = dst.height;
+    uint32_t rowsizefix = ((32 - inf->biBitCount * width) >> 3) & 0x3;
 
-// 	SBITMAPFILEHEADER *hdr = reinterpret_cast<SBITMAPFILEHEADER *>(src);
-// 	if (hdr->bfType != 0x4d42) // check if file start with "BM"
-// 		return false;
+    switch (inf->biBitCount)
+    {
+        case 4:
+        {
+            auto colorMap = getColorMap(
+                src, inf->biClrUsed ? std::min(1u << inf->biBitCount, inf->biClrUsed) : 1 << inf->biBitCount);
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                uint32_t* d = reinterpret_cast<uint32_t*>(dstBin + pitch * (vflip ? height - y - 1 : y));
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    if (x&1)
+                    {
+                        *d++ = colorMap[*src & 0xf];
+                        ++src;
+                    } else  
+                    {
+                        *d++ = colorMap[*src >> 4];
+                    }
+                }
+                src += rowsizefix;
+            }
+        }
+            break;
 
-// 	SBITMAPINFOHEADER *inf = reinterpret_cast<SBITMAPINFOHEADER *>(src + sizeof(SBITMAPFILEHEADER));
+        case 8:
+        {
+            auto colorMap = getColorMap(
+                src, inf->biClrUsed ? std::min(1u << inf->biBitCount, inf->biClrUsed) : 1 << inf->biBitCount);
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                uint32_t* d = reinterpret_cast<uint32_t*>(dstBin + pitch * (vflip ? height - y - 1 : y));
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    *d++ = colorMap[*src++];
+                }
+                src += rowsizefix;
+            }
+        }
+            break;
 
-// 	LONG tempHeight = inf->biHeight;
-// 	bool vflip = tempHeight < 0;
-// 	if (vflip)
-// 		tempHeight = -tempHeight;
+        case 24:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                uint8_t* d = dstBin + pitch * (vflip ? height - y - 1 : y);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    *d++ = src[2];
+                    *d++ = src[1];
+                    *d++ = src[0];
+                    *d++ = 255;
+                    src += 3;
+                }
+                src += rowsizefix;
+            }
+            break;
 
-// 	dst->CreateEmpty(inf->biWidth, inf->biHeight, PF_R8G8B8A8_UNORM);
-// 	BYTE *dstBin = dst->rawImage;
-// 	unsigned int pitch = dst->pitch;
-// 	unsigned int width = dst->width;
-// 	unsigned int height = dst->height;
+        case 32:
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                uint8_t* d = dstBin + pitch * (vflip ? height - y - 1 : y);
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    *d++ = *src++;
+                    *d++ = *src++;
+                    *d++ = *src++;
+                    *d++ = 255;
+                    ++src;
+                }
+            }
+            break;
+    }
 
-// 	BYTE *s = reinterpret_cast<BYTE *>(src + sizeof(SBITMAPFILEHEADER) + sizeof(SBITMAPINFOHEADER));
-
-// 	static DWORD32 colorMap[256];
-// 	if (inf->biBitCount < 24) { // color pallete
-// 		BYTE *cm = (BYTE *)colorMap;
-// 		for (int colors = 1 << inf->biBitCount; colors > 0; --colors) {
-// 			*cm++ = *s++;
-// 			*cm++ = *s++;
-// 			*cm++ = *s++;
-// 			*cm++ = 255;  ++s;
-// 		}
-// 	}
-
-// 	unsigned int rowsizefix = ((32 - inf->biBitCount*width) >> 3) & 0x3;
-
-// 	switch (inf->biBitCount) {
-// 	case 8:
-// 		if (inf->biCompression != 0)
-// 			return false;
-// 		for (int y = height - 1; y >= 0; --y) {
-// 			DWORD32 *d = (DWORD32 *)(dstBin + pitch * y);
-// 			for (int x = width - 1; x >= 0; --x) {
-// 				*d++ = colorMap[*s++];
-// 			}
-// 			s += rowsizefix;
-// 		}
-// 		break;
-
-// 	case 24:
-// 		if (inf->biCompression != 0)
-// 			return false;
-// 		for (unsigned int y = 0; y < height; ++y) {
-// 			BYTE *d = dstBin + pitch * (vflip ? height - y + 1 : y);
-// 			for (int x = width - 1; x >= 0; --x) {
-// 				*d++ = s[2];
-// 				*d++ = s[1];
-// 				*d++ = s[0];
-// 				*d++ = 255;
-// 				s += 3;
-// 			}
-// 			s += rowsizefix;
-// 		}
-// 		break;
-
-// 	case 32:
-// 		if (inf->biCompression != 0)
-// 			return false;
-// 		for (unsigned int y = 0; y < height; ++y) {
-// 			BYTE *d = dstBin + pitch * (vflip ? height - y + 1 : y);
-// 			for (int x = width - 1; x >= 0; --x) {
-// 				*d++ = *s++;
-// 				*d++ = *s++;
-// 				*d++ = *s++;
-// 				*d++ = 255;
-// 				++s;
-// 			}
-// 			//				s += rowsizefix; // rowsizefix must be 0.
-// 		}
-// 		break;
-// 	}
-
-// 	return true;
-// }
+    return true;
+}
+} // namespace Importer
