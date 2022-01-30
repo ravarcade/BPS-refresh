@@ -16,9 +16,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=reorder -Wno-unused-parameter -Wimplicit-fallthrough=0")
 
-
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
+find_package(sdl2-image CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 enable_testing()
 include(CTest)

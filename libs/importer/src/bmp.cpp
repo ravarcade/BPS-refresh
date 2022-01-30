@@ -1,7 +1,6 @@
 #include "common/Image.hpp"
 #include "common/types.hpp"
 
-
 namespace
 {
 using namespace common;
@@ -34,7 +33,7 @@ typedef struct
 } SBITMAPINFOHEADER;
 #pragma pack()
 
-uint32_t *getColorMap(const uint8_t *&src, uint32_t size)
+uint32_t* getColorMap(const uint8_t*& src, uint32_t size)
 {
     static uint32_t colorMap[256];
     uint8_t* cm = (uint8_t*)colorMap;
@@ -54,7 +53,7 @@ uint32_t *getColorMap(const uint8_t *&src, uint32_t size)
 
 namespace Importer
 {
-bool DecodeBMP(Image& dst, const MemoryBuffer &&srcMemBuf)
+bool DecodeBMP(Image& dst, const MemoryBuffer&& srcMemBuf)
 {
     if (srcMemBuf.size() < sizeof(SBITMAPFILEHEADER)) return false;
 
@@ -86,11 +85,12 @@ bool DecodeBMP(Image& dst, const MemoryBuffer &&srcMemBuf)
                 uint32_t* d = reinterpret_cast<uint32_t*>(dstBin + pitch * (vflip ? height - y - 1 : y));
                 for (uint32_t x = 0; x < width; ++x)
                 {
-                    if (x&1)
+                    if (x & 1)
                     {
                         *d++ = colorMap[*src & 0xf];
                         ++src;
-                    } else  
+                    }
+                    else
                     {
                         *d++ = colorMap[*src >> 4];
                     }
@@ -98,7 +98,7 @@ bool DecodeBMP(Image& dst, const MemoryBuffer &&srcMemBuf)
                 src += rowsizefix;
             }
         }
-            break;
+        break;
 
         case 8:
         {
@@ -114,7 +114,7 @@ bool DecodeBMP(Image& dst, const MemoryBuffer &&srcMemBuf)
                 src += rowsizefix;
             }
         }
-            break;
+        break;
 
         case 24:
             for (uint32_t y = 0; y < height; ++y)

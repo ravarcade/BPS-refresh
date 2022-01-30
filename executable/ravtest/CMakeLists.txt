@@ -6,7 +6,6 @@ set(SOURCES
 )
 
 set(HEADERS 
-    # include/importer/tmp.hpp
 )
 
 add_executable(${MODULE_NAME} ${SOURCES} ${HEADERS})
@@ -16,4 +15,4 @@ target_link_libraries(ravtest
     PRIVATE 
         bps::importer
         bps::engine
-        unofficial::sqlite3::sqlite3)
+        )

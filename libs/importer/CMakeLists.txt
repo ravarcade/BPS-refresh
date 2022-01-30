@@ -3,6 +3,7 @@ set(MODULE_NAME importer)
 set(SOURCES 
     src/bmp.cpp
     src/tga.cpp
+    src/sdl.cpp
 )
 
 set(HEADERS 
@@ -16,7 +17,10 @@ target_include_directories(${MODULE_NAME} PUBLIC include)
 target_link_libraries(${MODULE_NAME} 
     PUBLIC
         # bps::config              # exposed as public, so ut don't need to add it in target_link_libraries
-    # PRIVATE 
-        bps::common)
+        bps::common
+
+    PRIVATE
+        SDL2::SDL2_image
+    )
 
 add_subdirectory(ut)
