@@ -1,10 +1,10 @@
+#include <fmt/core.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <iostream>
+#include <ranges>
 #include "importer/decode.hpp"
 #include "tools/base64.hpp"
-#include <fmt/core.h>
-#include <ranges>
 
 namespace
 {
@@ -140,6 +140,33 @@ const auto png_4bit = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAAXNSR0IAr
                       "kAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAA1SURBVBjTY2BgEBRUUjI2xsdwcQkNTUsrL8fH6OiYOXPVqt278THOnLl79927/"
                       "/9xMv7/BwDf9T/B+ETdLwAAAABJRU5ErkJggg==";
 
+const auto jpg =
+    "/9j/4AAQSkZJRgABAQEAYABgAAD/"
+    "4QBoRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAARAAAATgAAAAAAAXcMAAAD6AABdwwAAA"
+    "PocGFpbnQubmV0IDQuMi4xNAAA/"
+    "9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/"
+    "9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/"
+    "8AAEQgAEAAQAwERAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//"
+    "EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU"
+    "1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6On"
+    "q8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//"
+    "EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJS"
+    "lNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+"
+    "jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A8t+BP/Bsj/wpf/hKf+M2v+Ek/wCEk/sP/m23+x/sX9j/ANr/APVfNV+0/af7V/6YeT5H/"
+    "LXzf3f+Gf8AxWh/6xt/87F/+Sw+q8YOGf8AiFH+rv8Atv8Ab/8Ab/8Aa/8AzDf2X9U/sv8Asz/p/mPt/b/2j/059l7H/l57T3Poj4Y/sbf8M9f23/"
+    "xcf/hL/wDhL/7N/wCZQ/sD+z/7A/tD/qaNa+1/a/7a/wCnbyPs3/Lbzv3X4fi/FD/iNPs/+EP/AFa/1a5/+Zn/AGz9d/tnl/6l+VfVvq39lf8AT/"
+    "23t/8Al17L95630mP9K/8Abf6lf8cEcvL/AKyf85S81+b+wf8ArHNWtY8F+F//AAWA/t7+3P8AjHj7L9l/sz/mrXn+Z5/9of8AVModu3yf9rdu7Y5/"
+    "9CLw8/Zb/wDEB/7Y/wCN5/61f61f2f8A82y/sP6h/Yf13/q4OcfWvrX9sf8AUP7D6v8A8vvbfuv8e/C//RrP+Izf25/x2j/q3/q3/Zn/ADjp/"
+    "bH13+2P7Q/6vtlf1f6v/Zf/AE/9t7f/AJdey/efBv7RnhX/AIWv/wAId/p/9g/2B/wkP/Lr/av2v+1P7D/6eNO8jyP7O/6beb53/LPy/n+64h+mf/"
+    "xLR9U/41v/AK6/66/WP+aw/wBXP7M/1c9j/wBUtn31z65/b3/UJ9X+qf8AL/2/7n/oe8G/9GH/ANQv9Y/+O3v7V/"
+    "tX+yP+cavqPsPqP9qf9X+xntfa/XP+nfJ7P7fP7v8A/9k=";
+
+const auto webp = "UklGRigBAABXRUJQVlA4WAoAAAAIAAAADwAADwAAVlA4TFMAAAAvD8ADAAbXkCQJ1tAcx/Ecz4N7NvM/"
+                  "BJWK2kZyAm2f7dBWekHIRpKqciZHdCwP+C7T/xhUb2w1qj7h/i/sh12wDO6XhyX8qHqoup8Ms8P4q/"
+                  "GqewBFWElGrgAAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAAxAQIAEQ"
+                  "AAAGYAAABphwQAAQAAAHgAAAAAAAAADHcBAOgDAAAMdwEA6AMAAHBhaW50Lm5ldCA0LjIuMTQAAAQAAJAHAAQAAAAwMjMwAaADAA"
+                  "EAAAABAAAAAqAEAAEAAAAQAAAAA6AEAAEAAAAQAAAAAAAAAA==";
+
 // pixels from test.bmp as rgba base64 binary data
 const auto pixels =
     "SAD//0gA//9IAP//SAD//7IA//+yAP//sgD//7IA////ANz//wDc//8A3P//ANz//wBu//8Abv//AG7//wBu/0gA//9IAP//SAD//0gA//+yAP//"
@@ -155,14 +182,31 @@ const auto pixels =
     "wAAAP9AQED/QEBA/0BAQP9AQED//wAA//8AAP//AAD//wAA//9qAP//agD//2oA//9qAP8AAAD/AAAA/wAAAP8AAAD/QEBA/0BAQP9AQED/QEBA//"
     "8AAP//AAD//wAA//8AAP//agD//2oA//9qAP//agD/AAAA/wAAAP8AAAD/AAAA/0BAQP9AQED/QEBA/0BAQP//AAD//wAA//8AAP//AAD//2oA//"
     "9qAP//agD//2oA/w==";
-const auto expectedImage = common::Image(tools::base64_decode(pixels), 16);
-std::string diff(const common::Image &a, const common::Image &b)
-{
-    // if (a == b) return "";
-    std::stringstream o;
-    o << "  because: ";
 
-#define check(x) if (a.x != b.x) o << fmt::format("[{}: {} != {}]", #x, a.x, b.x);
+const auto pixels2 =
+    "SAH//0gB//9IAf//SAH//7EA/v+xAP7/sQD+/7IB////ANz//wDc//8A3P//ANz//wBu//8Abv//AG7//wBu/0gB//9IAf//SAH//0gB//+xAP7/"
+    "sQD+/7EA/v+xAP7//wDc//8A3P//ANz//wDc//8Abv//AG7//wBu//8Abv9IAf//SAH//0gB//9IAf//sQD+/7EA/v+xAP7/sQD+//8A3P//ANz//"
+    "wDc//8A3P//AG7//wBu//8Abv//AG7/SAH//0gB//9IAf//SAH//7EA/v+xAP7/sQD+/7EA/v//ANz//wDc//8A3P//ANz//wBu//8Abv//AG7//"
+    "wBu/wH+kf8B/pH/Af6R/wH+kf8B////Af///wH///8B////AJT+/wCU/v8AlP7/AJT+/wAm//8AJv//ACb//wAm/f8B/pH/Af6R/wH+kf8B/pH/Af/"
+    "//wH///8B////Af///wCU/v8AlP7/AJT+/wCU/v8AJv//ACb//wAm//8AJv//Af6R/wH+kf8B/pH/Af6R/wH///8B////Af///wH///8AlP7/AJT+/"
+    "wCU/v8AlP7/ACb//wAm//8AJv//ACb//wH+kf8B/pH/Af6R/wH+kf8B////Af///wH///8A/v7/AJT+/wCU/v8AlP7/AJT+/wAm//8AJv//ACb//"
+    "wAm////2AD//9kA///YAP//2AD/tv8A/7b/AP+2/wD/tv8A/0v/AP9L/wD/S/8A/0v/AP8A/iH/AP4h/wD+If8A/iH//9gA///YAP//2AD//9gA/"
+    "7b/AP+2/wD/tv8A/7b/AP9L/wD/S/8A/0v/AP9L/wD/AP4h/wD+If8A/iH/AP4h///YAP//2AD//9gA///YAP+2/wD/tv8A/7b/AP+2/wD/S/8A/"
+    "0v/AP9L/wD/S/8A/wD+If8A/iH/AP4h/wD+If//2AD//9gA///YAP//2AD/tv8A/7b/AP+2/wD/tv8A/0v/AP9L/wD/S/8A/0v/AP8A/iH/AP4h/"
+    "wD+If8A/iH/AAAA/wAAAP8AAAD/AAAA/0BAQP9AQED/QEBA/0BAQP/+AAD//gAA//4AAP/+AAD//moA//5qAP/+agD//moA/wAAAP8AAAD/AAAA/"
+    "wAAAP9AQED/QEBA/0BAQP9AQED//gAA//4AAP/+AAD//gAA//5qAP/+agD//moA//5qAP8AAAD/AAAA/wAAAP8AAAD/QEBA/0BAQP9AQED/QEBA//"
+    "4AAP/9AQD//gAA//4AAP/+agD//moA//9pAP/+agD/AAAA/wAAAP8AAAD/AAAA/0BAQP9AQED/QEBA/0BAQP/+AAD//gAA//4AAP/+AAD//moA//"
+    "5qAP/+agD//moA/w==";
+
+const auto expectedImage = common::Image(tools::base64_decode(pixels), 16);
+const auto expectedJpgImage = common::Image(tools::base64_decode(pixels2), 16);
+
+std::string diff(const common::Image& a, const common::Image& b)
+{
+    std::stringstream o;
+
+#define check(x) \
+    if (a.x != b.x) o << fmt::format("[{}: {} != {}]", #x, a.x, b.x);
     check(width);
     check(height);
     check(format);
@@ -180,95 +224,75 @@ std::string diff(const common::Image &a, const common::Image &b)
                 {
                     auto sa = a.getMipmap(mipmap, layer, face);
                     auto sb = b.getMipmap(mipmap, layer, face);
-                    if (sa == sb)
+                    if (sa != sb)
                     {
-                        o << fmt::format("[mipmap {}, layer {}, face {} differs]\n", mipmap, layer, face);
-                        o << "[compare pixels]";
-                        break;
+                        o << fmt::format("  [error at mipmap {}, layer {}, face {}]", mipmap, layer, face);
+                        for (auto row : std::ranges::iota_view(0u, a.height))
+                        {
+                            if (memcmp(sa.data() + row * a.pitch, sb.data() + row * b.pitch, a.pitch) != 0)
+                            {
+                                bool first = true;
+                                auto ba = reinterpret_cast<const uint32_t*>(sa.data() + row * a.pitch);
+                                auto bb = reinterpret_cast<const uint32_t*>(sb.data() + row * a.pitch);
+                                for (auto col : std::ranges::iota_view(0u, a.width))
+                                {
+                                    if (ba[col] != bb[col])
+                                    {
+                                        if (first)
+                                            o << fmt::format("\n  [x={}, y={}: ", col, row);
+                                        else
+                                            o << ", ";
+                                        o << fmt::format("{:x}!={:x}", ba[col], bb[col]);
+                                        first = false;
+                                    }
+                                }
+                                if (not first) o << "]";
+                            }
+                        }
+                        o << "\n";
+                        return "  because: " + o.str();
                     }
                 }
     }
-    return o.str();
+    return "  because: " + o.str();
 }
 } // namespace
 
-TEST(imageDecode, decodeBmp)
+struct params
 {
-    common::Image img;
-
-    EXPECT_TRUE(Importer::DecodeBMP(img, tools::base64_decode(bmp_24bit)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeBMP(img, tools::base64_decode(bmp_8bit)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeBMP(img, tools::base64_decode(bmp_4bit)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_FALSE(Importer::DecodeBMP(img, tools::base64_decode(bmp_32bit)));
-    // EXPECT_EQ(expectedImage, img) << diff(expectedImage, img); // we have only 32 bit with compression... not supported
-}
-
-TEST(imageDecode, decodeTGA)
-{
-    common::Image img;
-    // std::cout << "rav: " << MemoryBuffer{tools::base64_decode(tga_24bit_nocompression)};
-    EXPECT_TRUE(Importer::DecodeTGA(img, tools::base64_decode(tga_24bit_nocompression)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeTGA(img, tools::base64_decode(tga_32bit_nocompression)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeTGA(img, tools::base64_decode(tga_24bit_compression)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeTGA(img, tools::base64_decode(tga_32bit_compression)));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-}
-
-class sdlImageDecode : public ::testing::TestWithParam<const char*>
-{
-protected:
     const char* base64Img;
+    const char* imgType{nullptr};
+    const common::Image& expectedImg{expectedImage};
+};
+
+class sdlImageDecode : public ::testing::TestWithParam<params>
+{
 };
 
 TEST_P(sdlImageDecode, decodeImage)
 {
-    auto base64Image = GetParam();
+    auto [base64Image, imgType, expectedImage] = GetParam();
     common::Image img;
 
-    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(base64Image)));
+    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(base64Image), imgType));
     EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
 }
 
 INSTANTIATE_TEST_CASE_P(
-        sdlImageDecodeFromBase64String,
-        sdlImageDecode,
-        ::testing::Values(
-            bmp_24bit,
-            bmp_8bit,
-            bmp_4bit,
-            bmp_32bit,
-            png_24bit,
-            png_32bit,
-            png_4bit,
-            png_8bit
-        ));
-
-
-TEST(imageDecode, decodeTgaWithSdl)
-{
-    common::Image img;
-
-    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(tga_24bit_nocompression), "TGA"));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(tga_32bit_nocompression), "TGA"));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(tga_24bit_compression), "TGA"));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-
-    EXPECT_TRUE(Importer::DecodeSDL(img, tools::base64_decode(tga_32bit_compression), "TGA"));
-    EXPECT_EQ(expectedImage, img) << diff(expectedImage, img);
-}
+    sdlImageDecodeFromBase64String,
+    sdlImageDecode,
+    ::testing::Values(
+        params{bmp_24bit},
+        params{bmp_8bit},
+        params{bmp_4bit},
+        params{bmp_32bit},
+        params{png_24bit},
+        params{png_32bit},
+        params{png_4bit},
+        params{png_8bit},
+        params{webp},
+        params{tga_24bit_nocompression, "TGA"},
+        params{tga_32bit_nocompression, "TGA"},
+        params{tga_24bit_compression, "TGA"},
+        params{tga_32bit_compression, "TGA"},
+        params{jpg, nullptr, expectedJpgImage}));

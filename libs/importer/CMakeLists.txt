@@ -1,8 +1,6 @@
 set(MODULE_NAME importer)
 
 set(SOURCES 
-    src/bmp.cpp
-    src/tga.cpp
     src/sdl.cpp
 )
 
