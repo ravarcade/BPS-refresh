@@ -15,4 +15,5 @@ target_link_libraries(ravtest
     PRIVATE 
         bps::importer
         bps::engine
+        fmt::fmt
         )

@@ -1,5 +1,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "common/Logger.hpp"
 #include "tools/base64.hpp"
 
 namespace
@@ -12,6 +13,10 @@ const std::string encoded_file = "Qk1mAAAAAAAAADYAAAAoAAAABAAAAAQAAAABABgAAAAAAA
 
 TEST(base64, encode)
 {
+    log_trace("no to wtopa!!!");
+    log_dbg("no to wtopa!!!");
+    log_inf("no to wtopa!!!");
+    log_err("no to wtopa!!!");
     EXPECT_THAT(tools::base64_encode(text), encoded_text);
 }
 
