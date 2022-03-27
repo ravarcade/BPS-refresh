@@ -35,7 +35,7 @@ struct fmt::formatter<LogLevel>
     }
 };
 
-constexpr std::string_view stripPath(const std::string_view path)
+constexpr std::string_view removePath(const std::string_view path)
 {
     size_t p = path.find_last_of("/\\");
     return std::string_view::npos != p ? path.substr(p + 1) : path;
@@ -46,16 +46,15 @@ inline void log(const std::source_location location, std::string_view fmt, T&&..
 {
     if constexpr (static_cast<int>(logLevel) >= LOG_LEVEL)
     {
-        fmt::print("{:%S}", std::chrono::system_clock::now().time_since_epoch());
-        // auto a = std::chrono::system_clock::now();
-        // fmt::print("{:%FT%T%Oz}\n", a);
-        // fmt::print("{}:{:d}", stripPath(location.file_name()), location.line());
+        auto now = std::chrono::system_clock::now();
         const auto& vargs = fmt::make_format_args(args...);
         fmt::print(
-            "[{}]/{} {}:{:d}: {}\n",
+            "{:%F %H:%M:%S}.{:06} [{}]/{} {}:{:d}: {}\n",
+            now,
+            (std::chrono::round<std::chrono::microseconds>(now).time_since_epoch() % std::chrono::seconds(1)).count(),
             std::this_thread::get_id(),
             logLevel,
-            stripPath(location.file_name()),
+            removePath(location.file_name()),
             location.line(),
             fmt::vformat(fmt, vargs));
     }
