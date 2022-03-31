@@ -5,9 +5,10 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#include <source_location>
+#include <fmt/compile.h>
 #include <string_view>
 #include <thread>
+#include <array>
 
 enum class LogLevel
 {
@@ -35,72 +36,32 @@ struct fmt::formatter<LogLevel>
     }
 };
 
-constexpr std::string_view removePath(const std::string_view path)
+constexpr std::string_view removePath(const std::string_view path) noexcept
 {
     size_t p = path.find_last_of("/\\");
     return std::string_view::npos != p ? path.substr(p + 1) : path;
 }
 
-template <const LogLevel logLevel, typename... T>
-inline void log(const std::source_location location, std::string_view fmt, T&&... args)
+template <const LogLevel logLevel, typename... Args>
+void log(std::string_view file, int line, fmt::format_string<Args...> fmt, Args&&... args)
 {
     if constexpr (static_cast<int>(logLevel) >= LOG_LEVEL)
     {
         auto now = std::chrono::system_clock::now();
-        const auto& vargs = fmt::make_format_args(args...);
         fmt::print(
             "{:%F %H:%M:%S}.{:06} [{}]/{} {}:{:d}: {}\n",
             now,
             (std::chrono::round<std::chrono::microseconds>(now).time_since_epoch() % std::chrono::seconds(1)).count(),
             std::this_thread::get_id(),
             logLevel,
-            removePath(location.file_name()),
-            location.line(),
-            fmt::vformat(fmt, vargs));
+            removePath(file),
+            line,
+            fmt::format(fmt, std::forward<Args>(args)...));
     }
 }
 
-template <typename... Args>
-void log_trace(
-    std::string_view fmt,
-    Args&&... args,
-    const std::source_location location = std::source_location::current())
-{
-    log<LogLevel::TRACE>(location, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void log_dbg(
-    std::string_view fmt,
-    Args&&... args,
-    const std::source_location location = std::source_location::current())
-{
-    log<LogLevel::DEBUG>(location, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void log_inf(
-    std::string_view fmt,
-    Args&&... args,
-    const std::source_location location = std::source_location::current())
-{
-    log<LogLevel::INFO>(location, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void log_wrn(
-    std::string_view fmt,
-    Args&&... args,
-    const std::source_location location = std::source_location::current())
-{
-    log<LogLevel::WARNING>(location, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void log_err(
-    std::string_view fmt,
-    Args&&... args,
-    const std::source_location location = std::source_location::current())
-{
-    log<LogLevel::ERROR>(location, fmt, std::forward<Args>(args)...);
-}
+#define log_trace(...) log<LogLevel::TRACE>(__FILE__, __LINE__, __VA_ARGS__)
+#define log_dbg(...) log<LogLevel::DEBUG>(__FILE__, __LINE__, __VA_ARGS__)
+#define log_inf(...) log<LogLevel::INFO>(__FILE__, __LINE__, __VA_ARGS__)
+#define log_wrn(...) log<LogLevel::WARNING>(__FILE__, __LINE__, __VA_ARGS__)
+#define log_err(...) log<LogLevel::ERROR>(__FILE__, __LINE__, __VA_ARGS__)

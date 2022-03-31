@@ -13,10 +13,13 @@ const std::string encoded_file = "Qk1mAAAAAAAAADYAAAAoAAAABAAAAAQAAAABABgAAAAAAA
 
 TEST(base64, encode)
 {
-    log_trace("no to wtopa!!!");
-    log_dbg("no to wtopa!!!");
-    log_inf("no to wtopa!!!");
-    log_err("no to wtopa!!!");
+    float f = 123.45f;
+    log_dbg("no to wtopa!!! ");
+    log_dbg("no to wtopa!!! {}", 123);
+    log_dbg("no to wtopa!!! {} {:2.3}", f, f);
+    // log_dbg("no to wtopa!!! {}", 123);
+    // log_inf("no to wtopa!!!");
+    // log_err("no to wtopa!!!");
     EXPECT_THAT(tools::base64_encode(text), encoded_text);
 }
 

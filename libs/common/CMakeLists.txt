@@ -21,8 +21,8 @@ add_library(bps::${MODULE_NAME} ALIAS ${MODULE_NAME})
 target_include_directories(${MODULE_NAME} PUBLIC include)
 target_link_libraries(${MODULE_NAME} 
     PUBLIC
-    PRIVATE
         fmt::fmt
+    PRIVATE
 )
 
 add_subdirectory(ut)

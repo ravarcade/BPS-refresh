@@ -3,11 +3,15 @@ set(MODULE_NAME renderingEngine)
 set(SOURCES 
     src/renderingEngine.cpp
     src/glfw.cpp
+    src/glfwImpl.hpp
+    src/glfwImpl.cpp
+    src/outputWindow.cpp
 )
 
 set(HEADERS 
     include/renderingEngine/renderingEngine.hpp
     include/renderingEngine/glfw.hpp
+    include/renderingEngine/outputWindow.hpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
