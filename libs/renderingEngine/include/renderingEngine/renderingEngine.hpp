@@ -4,6 +4,7 @@
 namespace renderingEngine
 {
 class Glfw;
+class RenderingEngineImpl;
 
 class RenderingEngine
 {
@@ -15,5 +16,6 @@ public:
 
 private:
     std::unique_ptr<Glfw> glfw;
+    std::unique_ptr<RenderingEngineImpl> re;
 };
 } // namespace renderingEngine

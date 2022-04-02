@@ -20,7 +20,7 @@ find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(sdl2-image CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
-find_path(VULKAN_HEADERS_INCLUDE_DIRS "vk_video/vulkan_video_codec_h264std.h")
+find_package(Vulkan REQUIRED)
 
 set(LOG_LEVEL_TRACE 0)
 set(LOG_LEVEL_DEBUG 1)
@@ -29,9 +29,3 @@ add_compile_definitions(LOG_LEVEL LOG_LEVEL_TRACE)
 
 add_subdirectory(libs)
 add_subdirectory(executable)
-
-# notes:
-#vulkan?
-# find_path(VULKAN_HEADERS_INCLUDE_DIRS "vk_video/vulkan_video_codec_h264std.h")
-#  find_path(VULKAN_HEADERS_INCLUDE_DIRS "vk_video/vulkan_video_codec_h264std.h")
-#  target_include_directories(main PRIVATE ${VULKAN_HEADERS_INCLUDE_DIRS})

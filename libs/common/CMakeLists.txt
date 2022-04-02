@@ -11,6 +11,7 @@ set(HEADERS
     include/common/types.hpp
     include/common/MemoryBuffer.hpp
     include/tools/base64.hpp
+    include/tools/to_vector.hpp
     include/common/Image.hpp
     include/common/Logger.hpp
 )

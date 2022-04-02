@@ -5,6 +5,8 @@ set(SOURCES
     src/glfw.cpp
     src/glfwImpl.hpp
     src/glfwImpl.cpp
+    src/renderingEngineImpl.hpp
+    src/renderingEngineImpl.cpp
     src/outputWindow.cpp
 )
 
@@ -28,6 +30,7 @@ target_link_libraries(${MODULE_NAME}
     PRIVATE
         # SDL2::SDL2_image
         glfw
+        Vulkan::Vulkan
     )
 
 add_subdirectory(ut)
