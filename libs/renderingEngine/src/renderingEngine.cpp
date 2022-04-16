@@ -5,7 +5,9 @@
 
 namespace renderingEngine
 {
-RenderingEngine::RenderingEngine() : glfw{std::make_unique<Glfw>()}, re{std::make_unique<RenderingEngineImpl>()}
+RenderingEngine::RenderingEngine() 
+    : glfw{std::make_unique<Glfw>()}
+    , re{std::make_unique<RenderingEngineImpl>(*glfw)}
 {
     log_inf("Starting rendering engine");
     glfw->createWindow(640, 480);

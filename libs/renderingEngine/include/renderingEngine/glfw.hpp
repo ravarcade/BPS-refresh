@@ -15,6 +15,7 @@ public:
 
     GLFWwindow* createWindow(int width, int height);
     void runTillStop();
+    GlfwImpl& getImpl();
 
 private:
     std::unique_ptr<GlfwImpl> impl;

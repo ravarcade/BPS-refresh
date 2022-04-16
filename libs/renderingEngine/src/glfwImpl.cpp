@@ -75,4 +75,20 @@ void GlfwImpl::windowCloseCallback(GLFWwindow* wnd)
         self->onWindowClose(wnd);
     }
 }
+
+std::vector<const char*> GlfwImpl::getRequiredVkExtensions()
+{
+    std::vector<const char*> extensions;
+
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    for (unsigned int i = 0; i < glfwExtensionCount; i++)
+    {
+        extensions.push_back(glfwExtensions[i]);
+    }
+
+    return extensions;
+}
 } // namespace renderingEngine

@@ -31,4 +31,9 @@ void Glfw::runTillStop()
     }
 }
 
+GlfwImpl &Glfw::getImpl()
+{
+    return *impl; 
+}
+
 } // namespace renderingEngine

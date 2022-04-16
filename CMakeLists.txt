@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=reorde
 
 find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(sdl2 CONFIG REQUIRED)
 find_package(sdl2-image CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <string_view>
 
 struct GLFWwindow;
 
@@ -14,6 +15,7 @@ public:
 
     GLFWwindow* createWindow(int width, int height);
     bool onUpdate();
+    std::vector<const char *>getRequiredVkExtensions();
 
 private:
     void onWindowClose(GLFWwindow*);

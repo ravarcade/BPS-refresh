@@ -3,6 +3,7 @@ set(This ${MODULE_NAME}_test) # will be client_test. MODULE_NAME is defined in p
 set(TESTSRC
     src/base64_tests.cpp
     src/to_vector_tests.cpp
+    src/contains_tests.cpp
     src/logger_tests.cpp
 )
 

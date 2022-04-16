@@ -18,6 +18,7 @@ target_link_libraries(${MODULE_NAME}
         bps::common
 
     PRIVATE
+        SDL2::SDL2
         SDL2::SDL2_image
     )
 
