@@ -1,19 +1,29 @@
 set(MODULE_NAME renderingEngine)
 
-set(SOURCES 
-    src/renderingEngine.cpp
-    src/glfw.cpp
-    src/glfwImpl.hpp
-    src/glfwImpl.cpp
-    src/renderingEngineImpl.hpp
-    src/renderingEngineImpl.cpp
-    src/outputWindow.cpp
+set(HEADERS 
+    include/renderingEngine/glfw.hpp
+    include/renderingEngine/renderingEngine.hpp
 )
 
-set(HEADERS 
-    include/renderingEngine/renderingEngine.hpp
-    include/renderingEngine/glfw.hpp
-    include/renderingEngine/outputWindow.hpp
+set(SOURCES 
+    src/glfw.cpp
+    src/renderingEngine.cpp
+    src/impl/ire.hpp
+    src/impl/GlfwImpl.cpp
+    src/impl/GlfwImpl.hpp
+    src/impl/LogicalDevice.hpp
+    src/impl/LogicalDevice.cpp
+    src/impl/PhysicalDevice.hpp
+    src/impl/PhysicalDevice.hpp
+    src/impl/PhysicalDevice.cpp
+    src/impl/OutputWindowImpl.cpp
+    src/impl/OutputWindowImpl.hpp
+    src/impl/QueueFamilyIndices.cpp
+    src/impl/QueueFamilyIndices.hpp
+    src/impl/RenderingEngineImpl.cpp
+    src/impl/RenderingEngineImpl.hpp
+    src/impl/SwapChainSupportDetails.cpp
+    src/impl/SwapChainSupportDetails.hpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)

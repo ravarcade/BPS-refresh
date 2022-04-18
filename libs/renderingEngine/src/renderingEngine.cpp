@@ -1,17 +1,16 @@
 #include "renderingEngine/renderingEngine.hpp"
 #include "common/Logger.hpp"
 #include "renderingEngine/glfw.hpp"
-#include "renderingEngineImpl.hpp"
+#include "impl/renderingEngineImpl.hpp"
 
 namespace renderingEngine
 {
 RenderingEngine::RenderingEngine() 
     : glfw{std::make_unique<Glfw>()}
-    , re{std::make_unique<RenderingEngineImpl>(*glfw)}
+    , re{std::make_unique<RenderingEngineImpl>(glfw->getImpl())}
 {
     log_inf("Starting rendering engine");
-    glfw->createWindow(640, 480);
-    re->init();
+    re->createWindow(640, 480);
 }
 
 RenderingEngine::~RenderingEngine() = default;

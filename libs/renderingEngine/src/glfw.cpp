@@ -1,7 +1,7 @@
 #include "renderingEngine/glfw.hpp"
-#include "glfwImpl.hpp"
+#include "impl\glfwImpl.hpp"
 #include <chrono>
-#include <glfw\glfw3.h>
+#include <GLFW/glfw3.h>
 #include <thread>
 
 namespace

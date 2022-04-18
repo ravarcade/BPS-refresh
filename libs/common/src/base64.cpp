@@ -28,7 +28,7 @@ std::vector<uint8_t> base64_decode(const std::string& encoded_string)
     uint8_t char_array_4[4], char_array_3[3];
     std::vector<uint8_t> ret;
 
-    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_]))
+    while (in_len-- and (encoded_string[in_] != '=') and is_base64(encoded_string[in_]))
     {
         char_array_4[i++] = encoded_string[in_];
         in_++;
