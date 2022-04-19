@@ -10,7 +10,7 @@ RenderingEngine::RenderingEngine()
     , re{std::make_unique<RenderingEngineImpl>(glfw->getImpl())}
 {
     log_inf("Starting rendering engine");
-    re->createWindow(640, 480);
+    re->createWindow({{640, 480}});
 }
 
 RenderingEngine::~RenderingEngine() = default;

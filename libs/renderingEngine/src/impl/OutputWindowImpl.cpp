@@ -10,22 +10,24 @@
 
 namespace renderingEngine
 {
-OutputWindowImpl::OutputWindowImpl(int width, int height, VkInstance& instance, const VkAllocationCallbacks* allocator, GlfwImpl& glfw)
-    : glfw{glfw}
-    , window{glfw.createWindow(width, height)}
-    , vkInstance{instance}
-    , vkAllocator{allocator}
+OutputWindowImpl::OutputWindowImpl(const Rect2D& rect, IRenderingEngine& ire, GlfwImpl& glfw)
+    : ire{ire}
+	, glfw{glfw}
+    , window{glfw.createWindow(rect)}
 {
     prepare();
 }
 
-OutputWindowImpl::~OutputWindowImpl() = default;
+OutputWindowImpl::~OutputWindowImpl()
+{
+	ire.vkDestroy(surface);
+}
 
 void OutputWindowImpl::prepare()
 {
-	if (glfwCreateWindowSurface(vkInstance, window, vkAllocator, &surface) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(ire.instance, window, ire.allocator, &surface) != VK_SUCCESS)
 		throw std::runtime_error("failed to create window surface!");
-    phyDev = std::make_unique<PhysicalDevice>(vkInstance, vkAllocator, surface);
-	dev = std::make_unique<LogicalDevice>(vkInstance, vkAllocator, *phyDev, surface);
+    phyDev = std::make_unique<PhysicalDevice>(ire, surface);
+	dev = std::make_unique<LogicalDevice>(ire, *phyDev, surface);
 }
 } // namespace renderingEngine

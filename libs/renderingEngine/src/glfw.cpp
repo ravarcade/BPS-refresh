@@ -18,9 +18,9 @@ Glfw::Glfw()
 
 Glfw::~Glfw() = default;
 
-GLFWwindow* Glfw::createWindow(int width, int height)
+GLFWwindow* Glfw::createWindow(const Rect2D& rect)
 {
-    return impl->createWindow(width, height);
+    return impl->createWindow(rect);
 }
 
 void Glfw::runTillStop()

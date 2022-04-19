@@ -15,8 +15,9 @@ GlfwImpl::~GlfwImpl()
     glfwTerminate();
 }
 
-GLFWwindow* GlfwImpl::createWindow(int width, int height)
+GLFWwindow* GlfwImpl::createWindow(const Rect2D& rect)
 {
+    auto [width, height] = rect.extent;
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     auto windowName = windows.empty() ? "BPS-Refresh - Main Window" : "BPS-Refresh - Tools";

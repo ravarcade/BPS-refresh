@@ -1,20 +1,25 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include <memory>
+#include <vulkan/vulkan.h>
+#include "common/Rect2D.hpp"
 
 class GLFWwindow;
 
 namespace renderingEngine
 {
+class IRenderingEngine;
 class GlfwImpl;
-class RenderingEngineImpl;
 class PhysicalDevice;
 class LogicalDevice;
 
 class OutputWindowImpl
 {
 public:
-    OutputWindowImpl(int width, int height, VkInstance& instance, const VkAllocationCallbacks* allocator, GlfwImpl& glfw);
+    OutputWindowImpl(
+        const Rect2D&,
+        IRenderingEngine&,
+        GlfwImpl&);
+
     ~OutputWindowImpl();
 
 private:
@@ -23,22 +28,19 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice);
     bool checkDeviceExtensionSupport(VkPhysicalDevice);
 
-
+    IRenderingEngine& ire;
     GlfwImpl& glfw;
     GLFWwindow* window;
 
-    VkInstance& vkInstance;
-    const VkAllocationCallbacks* vkAllocator;
-
     VkSurfaceKHR surface;
     // VkPhysicalDevice physicalDevice;
-   	// VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    // VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
     std::unique_ptr<PhysicalDevice> phyDev;
     std::unique_ptr<LogicalDevice> dev;
 
     VkDevice device;
-	// VkPhysicalDeviceProperties devProperties;
-	// VkPhysicalDeviceFeatures devFeatures;
+    // VkPhysicalDeviceProperties devProperties;
+    // VkPhysicalDeviceFeatures devFeatures;
 };
 } // namespace renderingEngine

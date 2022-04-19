@@ -10,7 +10,7 @@ namespace
 {
 using namespace renderingEngine;
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool checkDeviceExtensionSupport(IRenderingEngine& ire, VkPhysicalDevice device)
 {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -19,7 +19,7 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device)
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
     std::set<std::string_view> requiredExtensions(
-        RenderingEngineImpl::deviceExtensions.begin(), RenderingEngineImpl::deviceExtensions.end());
+        ire.getRequiredDeviceExtensions().begin(), ire.getRequiredDeviceExtensions().end());
 
     for (const auto& extension : availableExtensions)
     {
@@ -29,7 +29,7 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device)
     return requiredExtensions.empty();
 }
 
-bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
+bool isDeviceSuitable(IRenderingEngine& ire, VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
@@ -39,7 +39,7 @@ bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 
     QueueFamilyIndices indices(device, surface);
 
-    bool extensionsSupported = checkDeviceExtensionSupport(device);
+    bool extensionsSupported = checkDeviceExtensionSupport(ire, device);
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
@@ -56,18 +56,18 @@ bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 
 namespace renderingEngine
 {
-PhysicalDevice::PhysicalDevice(VkInstance& instance, const VkAllocationCallbacks* allocator, VkSurfaceKHR& surface)
+PhysicalDevice::PhysicalDevice(IRenderingEngine& ire, VkSurfaceKHR& surface)
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(ire.instance, &deviceCount, nullptr);
     if (deviceCount == 0) throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(ire.instance, &deviceCount, devices.data());
 
     for (const auto& device : devices)
     {
-        if (isDeviceSuitable(device, surface))
+        if (isDeviceSuitable(ire, device, surface))
         {
             physicalDevice = device;
             // msaaSamples = ire::_GetMaxUsableSampleCount(physicalDevice);
@@ -81,7 +81,7 @@ PhysicalDevice::PhysicalDevice(VkInstance& instance, const VkAllocationCallbacks
     vkGetPhysicalDeviceProperties(physicalDevice, &devProperties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &devFeatures);
 
-    enablePiplineStatistic =
-        devFeatures.pipelineStatisticsQuery == VK_TRUE and devFeatures.occlusionQueryPrecise == VK_TRUE;
+    enablePiplineStatistic = ire.enablePiplineStatistic() and devFeatures.pipelineStatisticsQuery == VK_TRUE and
+        devFeatures.occlusionQueryPrecise == VK_TRUE;
 }
 } // namespace renderingEngine

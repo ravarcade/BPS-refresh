@@ -4,15 +4,17 @@
 #include <vector>
 #include "PhysicalDevice.hpp"
 #include "QueueFamilyIndices.hpp"
-#include "RenderingEngineImpl.hpp"
+#include "IRenderingEngine.hpp"
+#include "RenderingEngineImpl.hpp" // remove me
 
 namespace renderingEngine
 {
 LogicalDevice::LogicalDevice(
-    VkInstance& instance,
-    const VkAllocationCallbacks* allocator,
+    IRenderingEngine& ire,
     PhysicalDevice& phyDev,
     VkSurfaceKHR& surface)
+    : ire{ire}
+    , device{ire.device}
 {
     QueueFamilyIndices indices(phyDev.physicalDevice, surface);
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -37,28 +39,28 @@ LogicalDevice::LogicalDevice(
         deviceFeatures.pipelineStatisticsQuery = VK_TRUE;
         deviceFeatures.occlusionQueryPrecise = VK_TRUE;
     }
+
     // createInfo structure to create logical device
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(RenderingEngineImpl::deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = RenderingEngineImpl::deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(ire.getRequiredDeviceExtensions().size());
+    createInfo.ppEnabledExtensionNames = ire.getRequiredDeviceExtensions().data();
 
     // add validation layer for logical device
-    // if (ire::enableValidationLayers)
-    if (true)
+    if (ire.enableValidationLayers())
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(RenderingEngineImpl::validationLayers.size());
-        createInfo.ppEnabledLayerNames = RenderingEngineImpl::validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(ire.getValidationLayers().size());
+        createInfo.ppEnabledLayerNames = ire.getValidationLayers().data();
     }
     else
     {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(phyDev.physicalDevice, &createInfo, allocator, &device) != VK_SUCCESS)
+    if (vkCreateDevice(phyDev.physicalDevice, &createInfo, ire.allocator, &device) != VK_SUCCESS)
         throw std::runtime_error("failed to create logical device!");
 
     vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
@@ -68,6 +70,6 @@ LogicalDevice::LogicalDevice(
 
 LogicalDevice::~LogicalDevice()
 {
-    vkDestroy(device);
+    ire.vkDestroy(device);
 }
 } // namespace renderingEngine

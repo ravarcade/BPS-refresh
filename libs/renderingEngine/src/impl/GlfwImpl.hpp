@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string_view>
+#include "common/Rect2D.hpp"
 
 struct GLFWwindow;
 
@@ -13,7 +14,7 @@ public:
     GlfwImpl();
     ~GlfwImpl();
 
-    GLFWwindow* createWindow(int width, int height);
+    GLFWwindow* createWindow(const Rect2D&);
     bool onUpdate();
     std::vector<const char *>getRequiredVkExtensions();
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "common/Rect2D.hpp"
 
 struct GLFWwindow;
 
@@ -13,7 +14,7 @@ public:
     Glfw();
     ~Glfw();
 
-    GLFWwindow* createWindow(int width, int height);
+    GLFWwindow* createWindow(const Rect2D&);
     void runTillStop();
     GlfwImpl& getImpl();
 

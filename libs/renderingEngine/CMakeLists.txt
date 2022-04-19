@@ -8,12 +8,10 @@ set(HEADERS
 set(SOURCES 
     src/glfw.cpp
     src/renderingEngine.cpp
-    src/impl/ire.hpp
     src/impl/GlfwImpl.cpp
     src/impl/GlfwImpl.hpp
     src/impl/LogicalDevice.hpp
     src/impl/LogicalDevice.cpp
-    src/impl/PhysicalDevice.hpp
     src/impl/PhysicalDevice.hpp
     src/impl/PhysicalDevice.cpp
     src/impl/OutputWindowImpl.cpp
@@ -21,6 +19,7 @@ set(SOURCES
     src/impl/QueueFamilyIndices.cpp
     src/impl/QueueFamilyIndices.hpp
     src/impl/RenderingEngineImpl.cpp
+    src/impl/IRenderingEngine.hpp
     src/impl/RenderingEngineImpl.hpp
     src/impl/SwapChainSupportDetails.cpp
     src/impl/SwapChainSupportDetails.hpp

@@ -15,6 +15,7 @@ set(HEADERS
     include/tools/contains.hpp
     include/common/Image.hpp
     include/common/Logger.hpp
+    include/common/Rect2D.hpp
 )
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS}) 

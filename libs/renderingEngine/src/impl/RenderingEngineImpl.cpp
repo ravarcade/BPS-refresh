@@ -5,14 +5,12 @@
 #include "outputWindowImpl.hpp"
 #include "tools/to_vector.hpp"
 
-namespace renderingEngine
-{
-const std::vector<const char*> RenderingEngineImpl::validationLayers = {"VK_LAYER_KHRONOS_validation"};
-const std::vector<const char*> RenderingEngineImpl::deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-} // namespace renderingEngine
 
 namespace
 {
+const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
 VkResult createDebugReportCallbackEXT(
     VkInstance instance,
     const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
@@ -103,9 +101,29 @@ RenderingEngineImpl::~RenderingEngineImpl()
     cleanup();
 }
 
-void RenderingEngineImpl::createWindow(int width, int height)
+void RenderingEngineImpl::createWindow(const Rect2D& rect)
 {
-	windows.emplace_back(std::make_unique<OutputWindowImpl>(width, height, instance, allocator, glfw));
+	windows.emplace_back(std::make_unique<OutputWindowImpl>(rect, *this, glfw));
+}
+
+const std::vector<const char*>& RenderingEngineImpl::getRequiredDeviceExtensions()
+{
+    return deviceExtensions;
+}
+
+const std::vector<const char*>& RenderingEngineImpl::getValidationLayers()
+{
+    return validationLayers;
+}
+
+bool RenderingEngineImpl::enableValidationLayers()
+{
+    return not validationLayers.empty();
+}
+
+bool RenderingEngineImpl::enablePiplineStatistic()
+{
+    return true;
 }
 
 void RenderingEngineImpl::init()
@@ -116,6 +134,7 @@ void RenderingEngineImpl::init()
 
 void RenderingEngineImpl::cleanup()
 {
+    windows.clear();
     destroyDebugReportCallbackEXT(instance, debugCallbackBackup, allocator);
     destroyDebugUtilsMessengerEXT(instance, debugMessengerCallbackBackup, allocator);
     vkDestroyInstance(instance, allocator);
@@ -124,7 +143,7 @@ void RenderingEngineImpl::cleanup()
 void RenderingEngineImpl::createInstance()
 {
     listVKExtensions();
-    if (enableValidationLayers && !isValidationLayerSupported())
+    if (enableValidationLayers() and !isValidationLayerSupported())
     {
         throw std::runtime_error("validation layers requested, but not available!");
     }
@@ -189,7 +208,7 @@ bool RenderingEngineImpl::isValidationLayerSupported()
 std::vector<const char*> RenderingEngineImpl::getRequiredExtensions()
 {
     std::vector<const char*> extensions = glfw.getRequiredVkExtensions();
-    if (enableValidationLayers)
+    if (enableValidationLayers())
     {
         extensions.insert(extensions.end(), {VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME});
     }
@@ -199,12 +218,12 @@ std::vector<const char*> RenderingEngineImpl::getRequiredExtensions()
 
 std::vector<const char*> RenderingEngineImpl::getRequiredLayers()
 {
-    return enableValidationLayers ? validationLayers : std::vector<const char*>{};
+    return enableValidationLayers() ? validationLayers : std::vector<const char*>{};
 }
 
 void RenderingEngineImpl::setupDebugCallback()
 {
-    if (enableValidationLayers)
+    if (enableValidationLayers())
     {
         {
             VkDebugReportCallbackCreateInfoEXT createInfo = {};
