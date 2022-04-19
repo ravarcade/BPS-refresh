@@ -8,6 +8,10 @@ set(HEADERS
 set(SOURCES 
     src/glfw.cpp
     src/renderingEngine.cpp
+    src/impl/Semaphores.hpp
+    src/impl/Semaphores.cpp
+    src/impl/CommandPools.hpp
+    src/impl/CommandPools.cpp
     src/impl/GlfwImpl.cpp
     src/impl/GlfwImpl.hpp
     src/impl/LogicalDevice.hpp

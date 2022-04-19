@@ -7,10 +7,12 @@ class GLFWwindow;
 
 namespace renderingEngine
 {
-class IRenderingEngine;
-class GlfwImpl;
-class PhysicalDevice;
-class LogicalDevice;
+struct IRenderingEngine;
+struct GlfwImpl;
+struct PhysicalDevice;
+struct LogicalDevice;
+struct CommandPools;
+struct Semaphores;
 
 class OutputWindowImpl
 {
@@ -38,6 +40,8 @@ private:
 
     std::unique_ptr<PhysicalDevice> phyDev;
     std::unique_ptr<LogicalDevice> dev;
+    std::unique_ptr<CommandPools> cmd;
+    std::unique_ptr<Semaphores> syn;
 
     VkDevice device;
     // VkPhysicalDeviceProperties devProperties;

@@ -1,12 +1,14 @@
 #include "outputWindowImpl.hpp"
-#include "renderingEngineImpl.hpp"
-#include "glfwImpl.hpp"
 #include <GLFW/glfw3.h>
+#include <set>
+#include "CommandPools.hpp"
+#include "LogicalDevice.hpp"
+#include "PhysicalDevice.hpp"
+#include "Semaphores.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "SwapChainSupportDetails.hpp"
-#include <set>
-#include "PhysicalDevice.hpp"
-#include "LogicalDevice.hpp"
+#include "glfwImpl.hpp"
+#include "renderingEngineImpl.hpp"
 
 namespace renderingEngine
 {
@@ -29,5 +31,7 @@ void OutputWindowImpl::prepare()
 		throw std::runtime_error("failed to create window surface!");
     phyDev = std::make_unique<PhysicalDevice>(ire, surface);
 	dev = std::make_unique<LogicalDevice>(ire, *phyDev, surface);
+	cmd = std::make_unique<CommandPools>(ire, *phyDev, surface);
+	syn = std::make_unique<Semaphores>(ire, *phyDev, surface);
 }
 } // namespace renderingEngine
