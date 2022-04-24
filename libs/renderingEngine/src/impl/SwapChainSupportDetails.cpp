@@ -1,5 +1,7 @@
 #include "SwapChainSupportDetails.hpp"
 
+namespace renderingEngine
+{
 SwapChainSupportDetails::SwapChainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
@@ -21,3 +23,4 @@ SwapChainSupportDetails::SwapChainSupportDetails(VkPhysicalDevice device, VkSurf
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, presentModes.data());
 	}
 }
+} // namespace renderingEngine

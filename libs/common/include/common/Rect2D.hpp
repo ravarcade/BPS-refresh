@@ -2,14 +2,14 @@
 
 struct Offset2D
 {
-    int x = 0;
-    int y = 0;
+    uint32_t x = 0;
+    uint32_t y = 0;
 };
 
 struct Extent2D
 {
-    int x = 0;
-    int y = 0;
+    uint32_t x = 0;
+    uint32_t y = 0;
 };
 
 struct Rect2D

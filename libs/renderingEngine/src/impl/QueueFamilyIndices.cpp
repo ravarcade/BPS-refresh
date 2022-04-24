@@ -1,6 +1,8 @@
 #include "QueueFamilyIndices.hpp"
 #include <vector>
 
+namespace renderingEngine
+{
 QueueFamilyIndices::QueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     uint32_t queueFamilyCount = 0;
@@ -61,3 +63,4 @@ QueueFamilyIndices::QueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR sur
         transferFamily = backup_transferFamily;
     }
 }
+} // namespace renderingEngine

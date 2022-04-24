@@ -3,16 +3,15 @@
 
 namespace renderingEngine
 {
-struct IRenderingEngine;
-struct PhysicalDevice;
+struct OutputWindowContext;
 
 struct Semaphores
 {
-    Semaphores(IRenderingEngine&, PhysicalDevice&, VkSurfaceKHR&);
+    Semaphores(OutputWindowContext&);
     ~Semaphores();
 
-    IRenderingEngine& ire;
-	VkSemaphore imageAvailableSemaphore;
+    OutputWindowContext& context;
+    VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
 };
 } // namespace renderingEngine

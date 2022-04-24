@@ -2,8 +2,10 @@
 #include <exception>
 #include <set>
 #include <string_view>
+#include "OutputWindowContext.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "RenderingEngineImpl.hpp"
+#include "Surface.hpp"
 #include "SwapChainSupportDetails.hpp"
 
 namespace
@@ -56,8 +58,9 @@ bool isDeviceSuitable(IRenderingEngine& ire, VkPhysicalDevice device, VkSurfaceK
 
 namespace renderingEngine
 {
-PhysicalDevice::PhysicalDevice(IRenderingEngine& ire, VkSurfaceKHR& surface)
+PhysicalDevice::PhysicalDevice(OutputWindowContext& context)
 {
+    auto& ire = context.ire;
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(ire.instance, &deviceCount, nullptr);
     if (deviceCount == 0) throw std::runtime_error("failed to find GPUs with Vulkan support!");
@@ -67,7 +70,7 @@ PhysicalDevice::PhysicalDevice(IRenderingEngine& ire, VkSurfaceKHR& surface)
 
     for (const auto& device : devices)
     {
-        if (isDeviceSuitable(ire, device, surface))
+        if (isDeviceSuitable(ire, device, context.surface->surface))
         {
             physicalDevice = device;
             // msaaSamples = ire::_GetMaxUsableSampleCount(physicalDevice);

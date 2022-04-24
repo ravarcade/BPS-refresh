@@ -2,7 +2,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-
+namespace renderingEngine
+{
 struct SwapChainSupportDetails
 {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -11,3 +12,4 @@ struct SwapChainSupportDetails
 
 	SwapChainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
 };
+} // namespace renderingEngine

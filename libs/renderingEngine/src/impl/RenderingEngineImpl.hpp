@@ -7,7 +7,7 @@
 namespace renderingEngine
 {
 class GlfwImpl;
-class OutputWindowImpl;
+class OutputWindow;
 
 class RenderingEngineImpl : public IRenderingEngine
 {
@@ -32,7 +32,7 @@ private:
     std::vector<const char *>getRequiredLayers();
 
     GlfwImpl& glfw;
-    std::vector<std::unique_ptr<OutputWindowImpl>> windows;
+    std::vector<std::unique_ptr<OutputWindow>> windows;
 
     VkDebugReportCallbackEXT debugCallbackBackup = VK_NULL_HANDLE;
 	VkDebugUtilsMessengerEXT debugMessengerCallbackBackup = VK_NULL_HANDLE;

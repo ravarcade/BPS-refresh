@@ -3,11 +3,11 @@
 
 namespace renderingEngine
 {
-struct IRenderingEngine;
+struct OutputWindowContext;
 
 struct PhysicalDevice
 {
-    PhysicalDevice(IRenderingEngine&, VkSurfaceKHR&);
+    PhysicalDevice(OutputWindowContext&); // IRenderingEngine&, VkSurfaceKHR&);
 
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
    	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;

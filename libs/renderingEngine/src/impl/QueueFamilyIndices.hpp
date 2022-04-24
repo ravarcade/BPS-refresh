@@ -1,6 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
+namespace renderingEngine
+{
 struct QueueFamilyIndices
 {
 	int graphicsFamily = -1;
@@ -14,3 +16,4 @@ struct QueueFamilyIndices
 
 	QueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface);
 };
+} // namespace renderingEngine

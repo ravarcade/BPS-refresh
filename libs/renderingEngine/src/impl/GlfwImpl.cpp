@@ -34,6 +34,13 @@ GLFWwindow* GlfwImpl::createWindow(const Rect2D& rect)
     return window;
 }
 
+Rect2D GlfwImpl::getWndSize(GLFWwindow* window)
+{
+    int width = 0, height = 0;
+    glfwGetWindowSize(window, &width, &height);
+    return Rect2D{{static_cast<uint32_t>(width), static_cast<uint32_t>(height)}};
+}
+
 bool GlfwImpl::onUpdate()
 {
     if (windows.size())

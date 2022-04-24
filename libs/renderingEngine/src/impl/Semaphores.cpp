@@ -1,24 +1,26 @@
 #include "Semaphores.hpp"
 #include <stdexcept>
 #include "IRenderingEngine.hpp"
+#include "OutputWindowContext.hpp"
 
 namespace renderingEngine
 {
-Semaphores::Semaphores(IRenderingEngine& ire, PhysicalDevice& phyDev, VkSurfaceKHR& surface)
-: ire{ire}
+Semaphores::Semaphores(OutputWindowContext& context) : context{context}
 {
-	VkSemaphoreCreateInfo semaphoreInfo = {};
+    auto& device = context.device;
+    auto& allocator = context.ire.allocator;
+    VkSemaphoreCreateInfo semaphoreInfo = {};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	if (vkCreateSemaphore(ire.device, &semaphoreInfo, ire.allocator, &imageAvailableSemaphore) != VK_SUCCESS ||
-		vkCreateSemaphore(ire.device, &semaphoreInfo, ire.allocator, &renderFinishedSemaphore) != VK_SUCCESS)
-	{
+    if (vkCreateSemaphore(device, &semaphoreInfo, allocator, &imageAvailableSemaphore) != VK_SUCCESS ||
+        vkCreateSemaphore(device, &semaphoreInfo, allocator, &renderFinishedSemaphore) != VK_SUCCESS)
+    {
 		throw std::runtime_error("failed to create semaphores!");
 	}
 }
 
 Semaphores::~Semaphores()
 {
-    ire.vkDestroy(renderFinishedSemaphore);
-    ire.vkDestroy(imageAvailableSemaphore);
+    context.vkDestroy(renderFinishedSemaphore);
+    context.vkDestroy(imageAvailableSemaphore);
 }
 } // namespace renderingEngine

@@ -17,6 +17,7 @@ public:
     GLFWwindow* createWindow(const Rect2D&);
     bool onUpdate();
     std::vector<const char *>getRequiredVkExtensions();
+    Rect2D getWndSize(GLFWwindow*);
 
 private:
     void onWindowClose(GLFWwindow*);

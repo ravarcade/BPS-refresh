@@ -3,15 +3,15 @@
 
 namespace renderingEngine
 {
-struct IRenderingEngine;
-struct PhysicalDevice;
-
+struct OutputWindowContext;
 struct CommandPools
 {
-    CommandPools(IRenderingEngine&, PhysicalDevice&, VkSurfaceKHR&);
+    CommandPools(OutputWindowContext&);
     ~CommandPools();
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer);
 
-    IRenderingEngine& ire;
+    OutputWindowContext& context;
     VkCommandPool commandPool;
 	VkCommandPool transferPool;
 };

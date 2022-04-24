@@ -1,18 +1,16 @@
 #pragma once
 #include <vulkan/vulkan.h>
-#include "IRenderingEngine.hpp"
 
 namespace renderingEngine
 {
-struct PhysicalDevice;
+struct OutputWindowContext;
 
 struct LogicalDevice
 {
-    LogicalDevice(IRenderingEngine&, PhysicalDevice&, VkSurfaceKHR&);
+    LogicalDevice(OutputWindowContext&);
     ~LogicalDevice();
 
-    IRenderingEngine& ire;
-    VkDevice& device;
+    OutputWindowContext& context;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkQueue transferQueue;

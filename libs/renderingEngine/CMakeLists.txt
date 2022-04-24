@@ -8,23 +8,29 @@ set(HEADERS
 set(SOURCES 
     src/glfw.cpp
     src/renderingEngine.cpp
-    src/impl/Semaphores.hpp
-    src/impl/Semaphores.cpp
-    src/impl/CommandPools.hpp
     src/impl/CommandPools.cpp
+    src/impl/CommandPools.hpp
     src/impl/GlfwImpl.cpp
     src/impl/GlfwImpl.hpp
-    src/impl/LogicalDevice.hpp
+    src/impl/IRenderingEngine.hpp
     src/impl/LogicalDevice.cpp
-    src/impl/PhysicalDevice.hpp
+    src/impl/LogicalDevice.hpp
+    src/impl/OutputWindow.cpp
+    src/impl/OutputWindow.hpp
+    src/impl/OutputWindowContext.cpp
+    src/impl/OutputWindowContext.hpp
     src/impl/PhysicalDevice.cpp
-    src/impl/OutputWindowImpl.cpp
-    src/impl/OutputWindowImpl.hpp
+    src/impl/PhysicalDevice.hpp
     src/impl/QueueFamilyIndices.cpp
     src/impl/QueueFamilyIndices.hpp
     src/impl/RenderingEngineImpl.cpp
-    src/impl/IRenderingEngine.hpp
     src/impl/RenderingEngineImpl.hpp
+    src/impl/RenderPass.cpp
+    src/impl/RenderPass.hpp
+    src/impl/Semaphores.cpp
+    src/impl/Semaphores.hpp
+    src/impl/Surface.cpp
+    src/impl/Surface.hpp
     src/impl/SwapChainSupportDetails.cpp
     src/impl/SwapChainSupportDetails.hpp
 )

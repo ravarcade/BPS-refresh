@@ -1,10 +1,9 @@
 #include "renderingEngineImpl.hpp"
 #include <ranges>
+#include "OutputWindow.hpp"
 #include "common/Logger.hpp"
 #include "glfwImpl.hpp"
-#include "outputWindowImpl.hpp"
 #include "tools/to_vector.hpp"
-
 
 namespace
 {
@@ -103,7 +102,7 @@ RenderingEngineImpl::~RenderingEngineImpl()
 
 void RenderingEngineImpl::createWindow(const Rect2D& rect)
 {
-	windows.emplace_back(std::make_unique<OutputWindowImpl>(rect, *this, glfw));
+    windows.emplace_back(std::make_unique<OutputWindow>(rect, *this, glfw));
 }
 
 const std::vector<const char*>& RenderingEngineImpl::getRequiredDeviceExtensions()
