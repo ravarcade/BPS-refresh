@@ -13,6 +13,7 @@ struct Surface
 
     VkExtent2D getVkExtentSize();
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
 
     OutputWindowContext& context;
     GLFWwindow* window;

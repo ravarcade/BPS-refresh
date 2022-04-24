@@ -8,6 +8,7 @@
 #include "RenderPass.hpp"
 #include "Semaphores.hpp"
 #include "Surface.hpp"
+#include "SwapChain.hpp"
 #include "SwapChainSupportDetails.hpp"
 #include "glfwImpl.hpp"
 #include "renderingEngineImpl.hpp"
@@ -29,7 +30,8 @@ void OutputWindow::prepare()
     dev = std::make_unique<LogicalDevice>(*this);
     cmd = std::make_unique<CommandPools>(*this);
     syn = std::make_unique<Semaphores>(*this);
-    rpFwd = std::make_unique<RenderPass>(RenderPassType::Forward, *this);
-    rpDer = std::make_unique<RenderPass>(RenderPassType::Deferred, *this);
+    forwardRenderPass = std::make_unique<RenderPass>(RenderPassType::Forward, *this);
+    derreferedRenderPass = std::make_unique<RenderPass>(RenderPassType::Deferred, *this);
+    swapChain = std::make_unique<SwapChain>(*this);
 }
 } // namespace renderingEngine

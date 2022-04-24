@@ -26,44 +26,6 @@ VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>
 
     return availableFormats[0];
 }
-
-VkFormat findSupportedFormat(
-    VkPhysicalDevice physicalDevice,
-    const std::vector<VkFormat>& candidates,
-    VkImageTiling tiling,
-    VkFormatFeatureFlags features)
-{
-    for (VkFormat format : candidates)
-    {
-        VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
-        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-        {
-            return format;
-        }
-        else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-        {
-            return format;
-        }
-    }
-
-    throw std::runtime_error("failed to find supported format!");
-}
-
-VkFormat findDepthFormat(VkPhysicalDevice physicalDevice)
-{
-    return findSupportedFormat(
-        physicalDevice,
-        {VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D32_SFLOAT_S8_UINT},
-        VK_IMAGE_TILING_OPTIMAL,
-        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-    // return findSupportedFormat(
-    //     physicalDevice,
-    // 	{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-    // 	VK_IMAGE_TILING_OPTIMAL,
-    // 	VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-    // );
-}
 } // namespace
 
 namespace renderingEngine
@@ -104,7 +66,7 @@ RenderPass::~RenderPass()
 void RenderPass::createForwardRenderPass(VkFormat format)
 {
     auto msaaSamples = context.msaaSamples;
-    auto depthBufferFormat = findDepthFormat(context.phyDev->physicalDevice);
+    auto depthBufferFormat = context.phyDev->getDepthFormat();
 
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = format;
@@ -186,7 +148,7 @@ void RenderPass::createDeferredRenderPass(VkFormat format)
     auto msaaSamples = context.msaaSamples;
     auto& device = context.device;
     auto& allocator = context.ire.allocator;
-    auto depthBufferFormat = findDepthFormat(context.phyDev->physicalDevice);
+    auto depthBufferFormat = context.phyDev->getDepthFormat();
 
     VkFormat deferredAttachmentFormats[] = {
         VK_FORMAT_R16G16_SNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R32G32B32A32_SFLOAT, depthBufferFormat};
@@ -208,7 +170,7 @@ void RenderPass::createDeferredRenderPass(VkFormat format)
     VkAttachmentReference depthReference;
 
     forEachFrameBuffer(
-        [&](RenderPass::FrameBufferAttachment& fba)
+        [&](FrameBufferAttachment& fba)
         {
             uint32_t attachmentIndex = static_cast<uint32_t>(attachmentDescs.size());
             fba.format = deferredAttachmentFormats[attachmentIndex];
@@ -316,7 +278,7 @@ void RenderPass::createDeferredFramebuffer()
     forEachFrameBuffer(
         [&](FrameBufferAttachment& fba)
         {
-            createAttachment(winExtent, fba);
+            context.createAttachment(winExtent, fba);
             attachments.push_back(fba.view);
 
             // .... but for depth we need another image view ....
@@ -341,42 +303,5 @@ void RenderPass::createDeferredFramebuffer()
     fbufCreateInfo.layers = 1;
     if (vkCreateFramebuffer(context.device, &fbufCreateInfo, nullptr, &frameBuffer) != VK_SUCCESS)
         throw std::runtime_error("failed to create frame buffer!");
-}
-
-void RenderPass::createAttachment(VkExtent2D extent, FrameBufferAttachment& attachment)
-{
-    VkImageAspectFlags aspectFlags = 0;
-    VkImageLayout imageLayout;
-    uint32_t mipLevels = 1;
-    VkSampleCountFlagBits numSamples = context.msaaSamples;
-    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-    if (attachment.usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
-    {
-        //		usage |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-        aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    }
-    if (attachment.usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
-    {
-        aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-        imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    }
-
-    context.createImage(
-        attachment.image,
-        attachment.memory,
-        extent.width,
-        extent.height,
-        mipLevels,
-        1,
-        numSamples,
-        attachment.format,
-        tiling,
-        attachment.usage,
-        properties);
-    attachment.view = context.createImageView(attachment.image, attachment.format, aspectFlags);
-    context.transitionImageLayout(attachment.image, attachment.format, VK_IMAGE_LAYOUT_UNDEFINED, imageLayout);
 }
 } // namespace renderingEngine

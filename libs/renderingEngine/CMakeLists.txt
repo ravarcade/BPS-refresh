@@ -12,6 +12,8 @@ set(SOURCES
     src/impl/CommandPools.hpp
     src/impl/GlfwImpl.cpp
     src/impl/GlfwImpl.hpp
+    src/impl/FrameBufferAttachment.hpp
+    src/impl/FrameBufferAttachment.cpp
     src/impl/IRenderingEngine.hpp
     src/impl/LogicalDevice.cpp
     src/impl/LogicalDevice.hpp
@@ -31,6 +33,8 @@ set(SOURCES
     src/impl/Semaphores.hpp
     src/impl/Surface.cpp
     src/impl/Surface.hpp
+    src/impl/SwapChain.cpp
+    src/impl/SwapChain.hpp
     src/impl/SwapChainSupportDetails.cpp
     src/impl/SwapChainSupportDetails.hpp
 )

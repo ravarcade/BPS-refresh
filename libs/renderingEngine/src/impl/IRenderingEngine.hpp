@@ -12,6 +12,7 @@ struct IRenderingEngine
     virtual const std::vector<const char*>& getValidationLayers() = 0;
     virtual bool enableValidationLayers() = 0;
     virtual bool enablePiplineStatistic() = 0;
+    virtual bool minimizeLag() = 0;
 
     VkInstance instance = VK_NULL_HANDLE;
     const VkAllocationCallbacks* allocator = VK_NULL_HANDLE;

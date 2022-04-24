@@ -125,6 +125,11 @@ bool RenderingEngineImpl::enablePiplineStatistic()
     return true;
 }
 
+bool RenderingEngineImpl::minimizeLag()
+{
+    return true;
+}
+
 void RenderingEngineImpl::init()
 {
     createInstance();

@@ -7,7 +7,8 @@ struct OutputWindowContext;
 
 struct PhysicalDevice
 {
-    PhysicalDevice(OutputWindowContext&); // IRenderingEngine&, VkSurfaceKHR&);
+    PhysicalDevice(OutputWindowContext&);
+    VkFormat getDepthFormat();
 
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
    	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;

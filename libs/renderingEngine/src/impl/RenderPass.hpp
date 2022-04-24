@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <vulkan/vulkan.h>
+#include "FrameBufferAttachment.hpp"
 
 namespace renderingEngine
 {
@@ -23,14 +24,6 @@ public:
     VkRenderPass renderPass;
 
     uint32_t width, height;
-    struct FrameBufferAttachment
-    {
-        VkImage image = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
-        VkImageView view = VK_NULL_HANDLE;
-        VkFormat format;
-        VkImageUsageFlags usage;
-    };
     FrameBufferAttachment frameBufferAttachments[3];
     FrameBufferAttachment depth;
     VkFramebuffer frameBuffer = VK_NULL_HANDLE;
@@ -50,7 +43,6 @@ private:
     void createForwardRenderPass(VkFormat);
     void createDeferredRenderPass(VkFormat);
     void createDeferredFramebuffer();
-    void createAttachment(VkExtent2D, FrameBufferAttachment&);
 
     template <typename T>
     void forEachFrameBuffer(T f)

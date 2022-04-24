@@ -16,6 +16,8 @@ struct PhysicalDevice;
 struct Semaphores;
 struct Surface;
 struct RenderPass;
+struct SwapChain;
+struct FrameBufferAttachment;
 
 struct OutputWindowContext
 {
@@ -43,6 +45,8 @@ struct OutputWindowContext
         VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     bool hasStencilComponent(VkFormat);
+    void createAttachment(VkExtent2D, FrameBufferAttachment&);
+    void createAttachment(VkFormat, VkImageUsageFlags, VkExtent2D, FrameBufferAttachment&);
 
     const Rect2D& rect;
     GlfwImpl& glfw;
@@ -57,8 +61,9 @@ struct OutputWindowContext
     std::unique_ptr<LogicalDevice> dev;
     std::unique_ptr<CommandPools> cmd;
     std::unique_ptr<Semaphores> syn;
-    std::unique_ptr<RenderPass> rpFwd;
-    std::unique_ptr<RenderPass> rpDer;
+    std::unique_ptr<RenderPass> forwardRenderPass;
+    std::unique_ptr<RenderPass> derreferedRenderPass;
+    std::unique_ptr<SwapChain> swapChain;
 
     template <typename T>
     void vkDestroy(T& v)
@@ -78,6 +83,8 @@ struct OutputWindowContext
             v = VK_NULL_HANDLE;
         }
     }
+
+    void vkDestroy(FrameBufferAttachment&);
 
 #ifdef Define_vkDestroy
 #undef Define_vkDestroy

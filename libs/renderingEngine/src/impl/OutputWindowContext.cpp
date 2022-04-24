@@ -8,6 +8,7 @@
 #include "RenderPass.hpp"
 #include "Semaphores.hpp"
 #include "Surface.hpp"
+#include "SwapChain.hpp"
 
 namespace renderingEngine
 {

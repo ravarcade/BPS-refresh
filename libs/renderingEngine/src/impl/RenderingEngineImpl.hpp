@@ -20,6 +20,7 @@ public:
     const std::vector<const char*>& getValidationLayers() override;
     bool enableValidationLayers() override;
     bool enablePiplineStatistic() override;
+    bool minimizeLag() override;
 
 private:
     void init();

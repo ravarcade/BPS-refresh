@@ -26,7 +26,7 @@ private:
     // std::unique_ptr<LogicalDevice> dev;
     // std::unique_ptr<CommandPools> cmd;
     // std::unique_ptr<Semaphores> syn;
-    // std::unique_ptr<RenderPass> rpFwd;
-    // std::unique_ptr<RenderPass> rpDer;
+    // std::unique_ptr<RenderPass> forwardRenderPass;
+    // std::unique_ptr<RenderPass> derreferedRenderPass;
 };
 } // namespace renderingEngine
