@@ -86,7 +86,19 @@ RenderPass::RenderPass(RenderPassType type, OutputWindowContext& context) : cont
 
 RenderPass::~RenderPass()
 {
+    context.vkDestroy(deferredSemaphore);
+    context.vkDestroy(resolvingSemaphore);
+    context.vkDestroy(colorSampler);
+    context.vkDestroy(frameBuffer);
     context.vkDestroy(renderPass);
+    forEachFrameBuffer(
+        [&](auto& fba)
+        {
+            context.vkDestroy(fba.image);
+            context.vkDestroy(fba.view);
+            context.vkFree(fba.memory);
+        });
+    context.vkDestroy(depthView);
 }
 
 void RenderPass::createForwardRenderPass(VkFormat format)

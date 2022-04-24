@@ -30,5 +30,6 @@ void OutputWindow::prepare()
     cmd = std::make_unique<CommandPools>(*this);
     syn = std::make_unique<Semaphores>(*this);
     rpFwd = std::make_unique<RenderPass>(RenderPassType::Forward, *this);
+    rpDer = std::make_unique<RenderPass>(RenderPassType::Deferred, *this);
 }
 } // namespace renderingEngine

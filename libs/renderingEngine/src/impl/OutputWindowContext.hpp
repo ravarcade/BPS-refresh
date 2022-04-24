@@ -108,5 +108,32 @@ struct OutputWindowContext
     Define_vkDestroy(ShaderModule);
     Define_vkDestroy(Sampler);
     Define_vkDestroy(QueryPool);
+
+    void vkFree(VkDeviceMemory& v)
+    {
+        if (v)
+        {
+            vkFreeMemory(device, v, ire.allocator);
+            v = nullptr;
+        }
+    }
+
+    void vkFree(VkCommandPool& v1, std::vector<VkCommandBuffer>& v2)
+    {
+        if (v1 && v2.size())
+        {
+            vkFreeCommandBuffers(device, v1, static_cast<uint32_t>(v2.size()), v2.data());
+            v2.clear();
+        }
+    }
+
+    void vkFree(VkDescriptorPool& v1, std::vector<VkDescriptorSet>& v2)
+    {
+        if (v1 && v2.size())
+        {
+            vkFreeDescriptorSets(device, v1, static_cast<uint32_t>(v2.size()), v2.data());
+            v2.clear();
+        }
+    }
 };
 } // namespace renderingEngine

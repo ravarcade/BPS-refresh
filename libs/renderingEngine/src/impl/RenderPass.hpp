@@ -25,22 +25,22 @@ public:
     uint32_t width, height;
     struct FrameBufferAttachment
     {
-        VkImage image;
-        VkDeviceMemory memory;
-        VkImageView view;
+        VkImage image = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkImageView view = VK_NULL_HANDLE;
         VkFormat format;
         VkImageUsageFlags usage;
     };
     FrameBufferAttachment frameBufferAttachments[3];
     FrameBufferAttachment depth;
-    VkFramebuffer frameBuffer;
+    VkFramebuffer frameBuffer = VK_NULL_HANDLE;
 
-    VkImageView depthView; // // we have 2 views of depth attachment, one is created to use in in depth reconstruction
+    VkImageView depthView = VK_NULL_HANDLE; // // we have 2 views of depth attachment, one is created to use in in depth reconstruction
                            // (read only) and one if for normal Z-Buffer write/tests
 
-    VkSampler colorSampler;
-    VkSemaphore deferredSemaphore;
-    VkSemaphore resolvingSemaphore;
+    VkSampler colorSampler = VK_NULL_HANDLE;
+    VkSemaphore deferredSemaphore = VK_NULL_HANDLE;
+    VkSemaphore resolvingSemaphore = VK_NULL_HANDLE;
     // std::vector<CShaderProgram*> shaders;
     // CShaderProgram *resolveShader = nullptr;
 
