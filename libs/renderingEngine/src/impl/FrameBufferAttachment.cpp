@@ -1,16 +1,16 @@
 #include "FrameBufferAttachment.hpp"
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 
 namespace renderingEngine
 {
-void OutputWindowContext::vkDestroy(FrameBufferAttachment& fba)
+void Context::vkDestroy(FrameBufferAttachment& fba)
 {
     vkDestroy(fba.image);
     vkDestroy(fba.view);
     vkFree(fba.memory);
 }
 
-void OutputWindowContext::createAttachment(VkExtent2D extent, FrameBufferAttachment& attachment)
+void Context::createAttachment(VkExtent2D extent, FrameBufferAttachment& attachment)
 {
     VkImageAspectFlags aspectFlags = 0;
     VkImageLayout imageLayout;
@@ -47,7 +47,7 @@ void OutputWindowContext::createAttachment(VkExtent2D extent, FrameBufferAttachm
     transitionImageLayout(attachment.image, attachment.format, VK_IMAGE_LAYOUT_UNDEFINED, imageLayout);
 }
 
-void OutputWindowContext::createAttachment(
+void Context::createAttachment(
     VkFormat format,
     VkImageUsageFlags usage,
     VkExtent2D extent,

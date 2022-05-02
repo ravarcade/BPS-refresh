@@ -8,14 +8,15 @@ set(SOURCES
 )
 
 set(HEADERS 
-    include/common/types.hpp
-    include/common/MemoryBuffer.hpp
-    include/tools/base64.hpp
-    include/tools/to_vector.hpp
-    include/tools/contains.hpp
     include/common/Image.hpp
     include/common/Logger.hpp
+    include/common/MemoryBuffer.hpp
     include/common/Rect2D.hpp
+    include/common/types.hpp
+    include/tools/base64.hpp
+    include/tools/contains.hpp
+    include/tools/countBits.hpp
+    include/tools/to_vector.hpp
 )
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS}) 

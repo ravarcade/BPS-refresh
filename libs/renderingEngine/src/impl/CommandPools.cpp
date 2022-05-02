@@ -2,14 +2,14 @@
 #include <stdexcept>
 #include "IRenderingEngine.hpp"
 #include "LogicalDevice.hpp"
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include "PhysicalDevice.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "Surface.hpp"
 
 namespace renderingEngine
 {
-CommandPools::CommandPools(OutputWindowContext& context) : context{context}
+CommandPools::CommandPools(Context& context) : context{context}
 {
     auto& physicalDevice = context.phyDev->physicalDevice;
     auto& allocator = context.ire.allocator;

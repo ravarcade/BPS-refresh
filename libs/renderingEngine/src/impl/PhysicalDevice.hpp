@@ -3,11 +3,11 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 
 struct PhysicalDevice
 {
-    PhysicalDevice(OutputWindowContext&);
+    PhysicalDevice(Context&);
     VkFormat getDepthFormat();
 
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};

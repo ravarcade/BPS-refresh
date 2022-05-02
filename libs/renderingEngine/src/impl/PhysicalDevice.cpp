@@ -2,7 +2,7 @@
 #include <exception>
 #include <set>
 #include <string_view>
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "RenderingEngineImpl.hpp"
 #include "Surface.hpp"
@@ -81,7 +81,7 @@ VkFormat findSupportedFormat(
 
 namespace renderingEngine
 {
-PhysicalDevice::PhysicalDevice(OutputWindowContext& context)
+PhysicalDevice::PhysicalDevice(Context& context)
 {
     auto& ire = context.ire;
     uint32_t deviceCount = 0;

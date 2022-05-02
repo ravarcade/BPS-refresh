@@ -3,14 +3,14 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 
 struct LogicalDevice
 {
-    LogicalDevice(OutputWindowContext&);
+    LogicalDevice(Context&);
     ~LogicalDevice();
 
-    OutputWindowContext& context;
+    Context& context;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkQueue transferQueue;

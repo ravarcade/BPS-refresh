@@ -3,15 +3,15 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 struct CommandPools
 {
-    CommandPools(OutputWindowContext&);
+    CommandPools(Context&);
     ~CommandPools();
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer);
 
-    OutputWindowContext& context;
+    Context& context;
     VkCommandPool commandPool;
 	VkCommandPool transferPool;
 };

@@ -2,14 +2,14 @@
 #include <exception>
 #include <set>
 #include <vector>
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include "PhysicalDevice.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "Surface.hpp"
 
 namespace renderingEngine
 {
-LogicalDevice::LogicalDevice(OutputWindowContext& context) : context{context}
+LogicalDevice::LogicalDevice(Context& context) : context{context}
 {
     auto& phyDev = *context.phyDev;
     auto& surface = context.surface->surface;

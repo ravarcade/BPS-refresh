@@ -5,17 +5,18 @@
 struct GLFWwindow;
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 struct Surface
 {
-    Surface(OutputWindowContext&);
+    Surface(Context&);
     ~Surface();
 
     VkExtent2D getVkExtentSize();
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR&);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat();
 
-    OutputWindowContext& context;
+    Context& context;
     GLFWwindow* window;
     VkSurfaceKHR surface;
     VkSurfaceFormatKHR surfaceFormat;

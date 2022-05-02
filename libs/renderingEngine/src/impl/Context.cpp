@@ -1,21 +1,26 @@
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include <vulkan/vulkan.h>
 #include "CommandPools.hpp"
 #include "GlfwImpl.hpp"
 #include "IRenderingEngine.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
+#include "QueueFamilyIndices.hpp"
 #include "RenderPass.hpp"
 #include "Semaphores.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
+#include "SharedUniformBufferObject.hpp"
+#include "CommandBuffers.hpp"
+#include "PipelineStatistic.hpp"
+#include "DescriptorSetManager.hpp"
 
 namespace renderingEngine
 {
-OutputWindowContext::OutputWindowContext(const Rect2D& rect, IRenderingEngine& ire, GlfwImpl& glfw)
+Context::Context(const Rect2D& rect, IRenderingEngine& ire, GlfwImpl& glfw)
     : rect{rect}, glfw{glfw}, ire{ire} {};
 
-uint32_t OutputWindowContext::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t Context::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(phyDev->physicalDevice, &memProperties);
@@ -31,7 +36,7 @@ uint32_t OutputWindowContext::findMemoryType(uint32_t typeFilter, VkMemoryProper
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void OutputWindowContext::createImage(
+void Context::createImage(
     VkImage& outImage,
     VkDeviceMemory& outImageMemory,
     uint32_t width,
@@ -82,7 +87,7 @@ void OutputWindowContext::createImage(
     vkBindImageMemory(device, outImage, outImageMemory, 0);
 }
 
-VkImageView OutputWindowContext::createImageView(
+VkImageView Context::createImageView(
     VkImage image,
     VkFormat format,
     VkImageAspectFlags aspectFlags,
@@ -113,18 +118,18 @@ VkImageView OutputWindowContext::createImageView(
     return imageView;
 }
 
-bool OutputWindowContext::hasStencilComponent(VkFormat format)
+bool Context::hasStencilComponent(VkFormat format)
 {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void OutputWindowContext::transitionImageLayout(
+void Context::transitionImageLayout(
     VkImage image,
     VkFormat format,
     VkImageLayout oldLayout,
     VkImageLayout newLayout)
 {
-    VkCommandBuffer commandBuffer = cmd->beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = commandPools->beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -196,6 +201,49 @@ void OutputWindowContext::transitionImageLayout(
 
     vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-    cmd->endSingleTimeCommands(commandBuffer);
+    commandPools->endSingleTimeCommands(commandBuffer);
+}
+
+void Context::createBuffer(
+    VkDeviceSize size,
+    VkBufferUsageFlags usage,
+    VkMemoryPropertyFlags properties,
+    VkBuffer& buffer,
+    VkDeviceMemory& bufferMemory,
+    VkSharingMode sharingMode)
+{
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = sharingMode;
+    if (sharingMode == VK_SHARING_MODE_CONCURRENT)
+    {
+        QueueFamilyIndices indices(phyDev->physicalDevice, surface->surface);
+        uint32_t sharedQueueInexes[] = {
+            static_cast<uint32_t>(indices.graphicsFamily), static_cast<uint32_t>(indices.transferFamily)};
+        bufferInfo.queueFamilyIndexCount = 2;
+        bufferInfo.pQueueFamilyIndices = sharedQueueInexes;
+    }
+
+    if (vkCreateBuffer(device, &bufferInfo, ire.allocator, &buffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create buffer!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(device, &allocInfo, ire.allocator, &bufferMemory) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate buffer memory!");
+    }
+
+    vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 } // namespace renderingEngine

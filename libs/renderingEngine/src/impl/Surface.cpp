@@ -3,12 +3,13 @@
 #include <limits>
 #include <stdexcept>
 #include "GlfwImpl.hpp"
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include "PhysicalDevice.hpp"
+#include "SwapChainSupportDetails.hpp"
 
 namespace renderingEngine
 {
-Surface::Surface(OutputWindowContext& context) : context{context}
+Surface::Surface(Context& context) : context{context}
 {
     window = context.glfw.createWindow(context.rect);
     if (glfwCreateWindowSurface(context.ire.instance, window, context.ire.allocator, &surface) != VK_SUCCESS)
@@ -66,5 +67,11 @@ VkSurfaceFormatKHR Surface::chooseSwapSurfaceFormat(const std::vector<VkSurfaceF
     }
 
     return availableFormats[0];
+}
+
+VkSurfaceFormatKHR Surface::chooseSwapSurfaceFormat()
+{
+    SwapChainSupportDetails swapChainSupport(context.phyDev->physicalDevice, context.surface->surface);
+    return context.surface->chooseSwapSurfaceFormat(swapChainSupport.formats);   
 }
 } // namespace renderingEngine

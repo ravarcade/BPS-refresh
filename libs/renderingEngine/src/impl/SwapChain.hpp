@@ -4,13 +4,13 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 struct SwapChain
 {
-    SwapChain(OutputWindowContext&);
+    SwapChain(Context&);
     ~SwapChain();
 
-    OutputWindowContext& context;
+    Context& context;
   	VkSwapchainKHR swapChain;
 	std::vector<VkImage> images;
 	std::vector<VkImageView> imageViews;

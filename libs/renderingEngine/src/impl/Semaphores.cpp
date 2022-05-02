@@ -1,11 +1,11 @@
 #include "Semaphores.hpp"
 #include <stdexcept>
 #include "IRenderingEngine.hpp"
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 
 namespace renderingEngine
 {
-Semaphores::Semaphores(OutputWindowContext& context) : context{context}
+Semaphores::Semaphores(Context& context) : context{context}
 {
     auto& device = context.device;
     auto& allocator = context.ire.allocator;

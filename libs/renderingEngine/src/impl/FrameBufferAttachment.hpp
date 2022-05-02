@@ -3,7 +3,7 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 struct FrameBufferAttachment
 {
     VkImage image = VK_NULL_HANDLE;

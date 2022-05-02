@@ -3,14 +3,14 @@
 
 namespace renderingEngine
 {
-struct OutputWindowContext;
+struct Context;
 
 struct Semaphores
 {
-    Semaphores(OutputWindowContext&);
+    Semaphores(Context&);
     ~Semaphores();
 
-    OutputWindowContext& context;
+    Context& context;
     VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
 };

@@ -1,13 +1,12 @@
 #pragma once
 #include <memory>
 #include <vulkan/vulkan.h>
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 
 struct GLFWwindow;
-
 namespace renderingEngine
 {
-class OutputWindow : public OutputWindowContext
+class OutputWindow : public Context
 {
 public:
     OutputWindow(const Rect2D&, IRenderingEngine&, GlfwImpl&);
@@ -17,16 +16,6 @@ public:
 private:
     void prepare();
 
-    // const Rect2D& rect;
-    // IRenderingEngine& ire;
-    // GlfwImpl& glfw;
 
-    // std::unique_ptr<Surface> surface;
-    // std::unique_ptr<PhysicalDevice> phyDev;
-    // std::unique_ptr<LogicalDevice> dev;
-    // std::unique_ptr<CommandPools> cmd;
-    // std::unique_ptr<Semaphores> syn;
-    // std::unique_ptr<RenderPass> forwardRenderPass;
-    // std::unique_ptr<RenderPass> derreferedRenderPass;
 };
 } // namespace renderingEngine

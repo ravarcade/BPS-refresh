@@ -18,11 +18,15 @@ struct Surface;
 struct RenderPass;
 struct SwapChain;
 struct FrameBufferAttachment;
+struct SharedUniformBufferObject;
+struct CommandBuffers;
+struct PipelineStatistic;
+struct DescriptorSetManager;
 
-struct OutputWindowContext
+struct Context
 {
-    OutputWindowContext(const Rect2D&, IRenderingEngine&, GlfwImpl&);
-    ~OutputWindowContext() = default;
+    Context(const Rect2D&, IRenderingEngine&, GlfwImpl&);
+    ~Context() = default;
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createImage(
@@ -47,6 +51,13 @@ struct OutputWindowContext
     bool hasStencilComponent(VkFormat);
     void createAttachment(VkExtent2D, FrameBufferAttachment&);
     void createAttachment(VkFormat, VkImageUsageFlags, VkExtent2D, FrameBufferAttachment&);
+    void createBuffer(
+        VkDeviceSize,
+        VkBufferUsageFlags,
+        VkMemoryPropertyFlags,
+        VkBuffer&,
+        VkDeviceMemory&,
+        VkSharingMode = VK_SHARING_MODE_EXCLUSIVE);
 
     const Rect2D& rect;
     GlfwImpl& glfw;
@@ -59,11 +70,15 @@ struct OutputWindowContext
     std::unique_ptr<Surface> surface;
     std::unique_ptr<PhysicalDevice> phyDev;
     std::unique_ptr<LogicalDevice> dev;
-    std::unique_ptr<CommandPools> cmd;
+    std::unique_ptr<CommandPools> commandPools;
     std::unique_ptr<Semaphores> syn;
     std::unique_ptr<RenderPass> forwardRenderPass;
     std::unique_ptr<RenderPass> derreferedRenderPass;
     std::unique_ptr<SwapChain> swapChain;
+    std::unique_ptr<SharedUniformBufferObject> sharedUBO;
+    std::unique_ptr<CommandBuffers> commandBuffers;
+    std::unique_ptr<PipelineStatistic> pipelineStatistic;
+    std::unique_ptr<DescriptorSetManager> descriptorSetManager;
 
     template <typename T>
     void vkDestroy(T& v)

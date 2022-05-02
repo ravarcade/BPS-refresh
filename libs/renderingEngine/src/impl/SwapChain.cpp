@@ -1,6 +1,6 @@
 #include "SwapChain.hpp"
 #include <stdexcept>
-#include "OutputWindowContext.hpp"
+#include "Context.hpp"
 #include "PhysicalDevice.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "RenderPass.hpp"
@@ -32,7 +32,7 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> avail
 
 namespace renderingEngine
 {
-SwapChain::SwapChain(OutputWindowContext& context) : context{context}
+SwapChain::SwapChain(Context& context) : context{context}
 {
     SwapChainSupportDetails swapChainSupport(context.phyDev->physicalDevice, context.surface->surface);
     VkExtent2D extent = context.surface->chooseSwapExtent(swapChainSupport.capabilities);
@@ -111,8 +111,8 @@ SwapChain::SwapChain(OutputWindowContext& context) : context{context}
 
     // ------------------------------------------------------------------------ create color, depth resources
     auto& forwardRenderPass = context.forwardRenderPass;
-    auto& colorFBA = forwardRenderPass->frameBufferAttachments[0];
-    auto& depthFBA = forwardRenderPass->depth;
+    auto& colorFBA = forwardRenderPass->colorFba;
+    auto& depthFBA = forwardRenderPass->depthFba;
     context.createAttachment(
         imageFormat,
         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
@@ -151,13 +151,6 @@ SwapChain::SwapChain(OutputWindowContext& context) : context{context}
 
 SwapChain::~SwapChain()
 {
-    // auto& forwardRenderPass = context.forwardRenderPass;
-
-    // context.vkDestroy(forwardRenderPass->frameBufferAttachments[0]);
-	// context.vkDestroy(forwardRenderPass->depth);
-
-	//context.vkFree(commandPool, commandBuffers);
-
     for (auto &frameBuffer : framebuffers)
     {
     	context.vkDestroy(frameBuffer);
