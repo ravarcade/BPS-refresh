@@ -56,4 +56,21 @@ void PipelineStatistic::end(VkCommandBuffer cmdBuf)
 {
     if (queryPool) vkCmdEndQuery(cmdBuf, queryPool, 0);
 }
+
+void PipelineStatistic::update()
+{
+    if (queryPool)
+    {
+        uint32_t count = static_cast<uint32_t>(stats.size());
+        vkGetQueryPoolResults(
+            context.device,
+            queryPool,
+            0,
+            1,
+            count * sizeof(uint64_t),
+            stats.data(),
+            sizeof(uint64_t),
+            VK_QUERY_RESULT_64_BIT);
+    }
+}
 } // namespace renderingEngine

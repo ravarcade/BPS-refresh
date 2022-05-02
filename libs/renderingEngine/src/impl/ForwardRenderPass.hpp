@@ -9,6 +9,6 @@ public:
     ForwardRenderPass(Context&);
     ~ForwardRenderPass() override;
 
-    void createCommandBuffer(VkCommandBuffer&) override;
+    void createCommandBuffer(VkCommandBuffer&, VkFramebuffer&) override;
 };
 } // namespace renderingEngine

@@ -35,7 +35,7 @@ namespace renderingEngine
 SwapChain::SwapChain(Context& context) : context{context}
 {
     SwapChainSupportDetails swapChainSupport(context.phyDev->physicalDevice, context.surface->surface);
-    VkExtent2D extent = context.surface->chooseSwapExtent(swapChainSupport.capabilities);
+    extent = context.surface->chooseSwapExtent(swapChainSupport.capabilities);
     VkSurfaceFormatKHR surfaceFormat = context.surface->chooseSwapSurfaceFormat(swapChainSupport.formats);
 
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -100,7 +100,14 @@ SwapChain::SwapChain(Context& context) : context{context}
     vkGetSwapchainImagesKHR(context.device, swapChain, &imageCount, images.data());
 
     imageFormat = surfaceFormat.format;
-    extent = extent;
+	scissor = { { 0, 0 }, extent};
+	viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	viewport.width = static_cast<float>(extent.width);
+	viewport.height = static_cast<float>(extent.height);
 
     // ------------------------------------------------------------------------ create swap chaing image views
     imageViews.resize(images.size());

@@ -15,8 +15,7 @@ struct CommandBuffers
     std::vector<VkCommandBuffer> commandBuffers;
 
     // wrong place
-    VkViewport viewport;
-    VkRect2D scissor;
+
     VkDescriptorSet currentDescriptorSet = VK_NULL_HANDLE;
 };
 } // namespace renderingEngine

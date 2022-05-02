@@ -23,10 +23,11 @@ GLFWwindow* Glfw::createWindow(const Rect2D& rect)
     return impl->createWindow(rect);
 }
 
-void Glfw::runTillStop()
+void Glfw::runTillStop(std::function<void()> draw)
 {
     while (impl->onUpdate())
     {
+        draw();
         std::this_thread::sleep_for(10ms);
     }
 }

@@ -17,7 +17,9 @@ RenderingEngine::~RenderingEngine() = default;
 
 void RenderingEngine::run()
 {
-    glfw->runTillStop();
+    glfw->runTillStop([&](){
+        re->draw();
+    });
     log_inf("Finishing rendering engine");
 }
 } // namespace renderingEngine

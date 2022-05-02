@@ -17,5 +17,7 @@ struct SwapChain
 	std::vector<VkFramebuffer> framebuffers;
 	VkFormat imageFormat;
 	VkExtent2D extent;
+	VkViewport viewport;
+    VkRect2D scissor;
 };
 } // namespace renderingEngine

@@ -21,6 +21,7 @@ public:
     bool enableValidationLayers() override;
     bool enablePiplineStatistic() override;
     bool minimizeLag() override;
+    void draw() override;
 
 private:
     void init();

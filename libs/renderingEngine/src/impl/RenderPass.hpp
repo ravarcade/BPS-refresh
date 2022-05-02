@@ -15,13 +15,14 @@ protected:
 public:
     virtual ~RenderPass(){};
 
-    virtual void createCommandBuffer(VkCommandBuffer&) = 0;
+    virtual void createCommandBuffer(VkCommandBuffer&, VkFramebuffer&) = 0;
 
     Context& context;
     VkRenderPass renderPass;
 
     uint32_t width, height;
     FrameBufferAttachment frameBufferAttachments[3];
+
     FrameBufferAttachment& colorFba = frameBufferAttachments[0];
     FrameBufferAttachment depthFba;
     VkFramebuffer frameBuffer = VK_NULL_HANDLE;

@@ -2,6 +2,7 @@
 #include "Context.hpp"
 #include "PhysicalDevice.hpp"
 #include "Surface.hpp"
+#include "SwapChain.hpp"
 
 namespace renderingEngine
 {
@@ -96,7 +97,42 @@ ForwardRenderPass::~ForwardRenderPass()
     context.vkDestroy(depthFba);
 }
 
-void ForwardRenderPass::createCommandBuffer(VkCommandBuffer& /*cmdBuf*/)
+void ForwardRenderPass::createCommandBuffer(VkCommandBuffer& cmdBuf, VkFramebuffer &frameBuffer)
 {
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	beginInfo.pInheritanceInfo = nullptr; // Optional
+    vkBeginCommandBuffer(cmdBuf, &beginInfo);
+
+	// clear values
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.2f, 0.2f, 0.2f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = frameBuffer;
+
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = context.swapChain->extent;
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(cmdBuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdSetViewport(cmdBuf, 0, 1, &context.swapChain->viewport);
+	vkCmdSetScissor(cmdBuf, 0, 1, &context.swapChain->scissor);
+/*
+	for (auto &shader : forwardRenderingShaders)
+	{
+		shader->DrawObjects(cb);
+	}
+*/
+	vkCmdEndRenderPass(cmdBuf);
+
+    if (vkEndCommandBuffer(cmdBuf) != VK_SUCCESS) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
 }
 } // namespace renderingEngine

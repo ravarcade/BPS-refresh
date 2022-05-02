@@ -14,6 +14,7 @@ struct PipelineStatistic
     void reset(VkCommandBuffer);
     void begin(VkCommandBuffer);
     void end(VkCommandBuffer);
+    void update();
 
     Context& context;
     VkQueryPool queryPool = VK_NULL_HANDLE;

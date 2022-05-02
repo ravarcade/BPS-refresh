@@ -2,8 +2,9 @@
 #include "Context.hpp"
 #include "PhysicalDevice.hpp"
 #include "Surface.hpp"
-#include "CommandBuffers.hpp"
+// #include "CommandBuffers.hpp" - not allowed to use commandBuffers here!
 #include "PipelineStatistic.hpp"
+#include "SwapChain.hpp"
 
 namespace renderingEngine
 {
@@ -145,17 +146,16 @@ DefferedRenderPass::~DefferedRenderPass()
     context.vkDestroy(depthView);
 }
 
-void DefferedRenderPass::createCommandBuffer(VkCommandBuffer& cmdBuf)
+void DefferedRenderPass::createCommandBuffer(VkCommandBuffer& cmdBuf, VkFramebuffer& /*frameBuffer*/)
 {
-
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 	beginInfo.pInheritanceInfo = nullptr; // Optional
     vkBeginCommandBuffer(cmdBuf, &beginInfo);
 
-    auto& viewport = context.commandBuffers->viewport;
-    auto& scissor = context.commandBuffers->scissor;
+    auto& viewport = context.swapChain->viewport;
+    auto& scissor = context.swapChain->scissor;
 
 	std::array<VkClearValue, 4> clearValues = {};
 	clearValues[0].color = { 0.5f, 0.5f, 0.0f, 0.0f };

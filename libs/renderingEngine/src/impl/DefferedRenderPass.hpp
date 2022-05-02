@@ -9,7 +9,7 @@ public:
     DefferedRenderPass(Context&);
     ~DefferedRenderPass() override;
 
-    void createCommandBuffer(VkCommandBuffer&) override;
+    void createCommandBuffer(VkCommandBuffer&, VkFramebuffer&) override;
 
 private:
     void createDeferredFramebuffer();

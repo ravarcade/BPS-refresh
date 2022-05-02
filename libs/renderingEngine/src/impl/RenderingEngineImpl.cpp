@@ -260,4 +260,12 @@ void RenderingEngineImpl::setupDebugCallback()
         log_inf("Vk debug layer is active");
     }
 }
+
+void RenderingEngineImpl::draw()
+{
+    for (auto& ow : windows)
+    {
+        ow->draw();
+    }
+}
 } // namespace renderingEngine
