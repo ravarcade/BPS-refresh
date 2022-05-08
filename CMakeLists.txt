@@ -23,6 +23,7 @@ find_package(sdl2-image CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 set(LOG_LEVEL_TRACE 0)
 set(LOG_LEVEL_DEBUG 1)

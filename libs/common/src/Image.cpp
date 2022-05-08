@@ -70,6 +70,21 @@ MemoryBuffer Image::getMipmap(uint32_t mipmapLevel, uint32_t layer, uint32_t fac
     return {};
 }
 
+size_t Image::getOffset(uint32_t mipmapLevel, uint32_t layer, uint32_t face) const
+{
+    if (mipmapLevel < num_mipmaps and layer < num_layers and face < num_faces and rawImages.size() != 0)
+    {
+        size_t idx = face + layer * num_faces + mipmapLevel * num_faces * num_layers;
+        return rawImages[idx] - rawImages[0];
+    }
+    return 0;
+}
+
+MemoryBuffer Image::getRawImage() const
+{
+    return {*rawImages.begin(), static_cast<size_t>(*rawImages.rbegin() - *rawImages.begin())};
+}
+
 uint8_t* Image::editMipmap(uint32_t mipmapLevel, uint32_t layer, uint32_t face)
 {
     assert(mipmapLevel < num_mipmaps and layer < num_layers and face < num_faces and rawImages.size() != 0);

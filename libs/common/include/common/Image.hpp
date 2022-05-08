@@ -30,6 +30,8 @@ public:
     Image& operator =(Image&&) = delete;
 
     MemoryBuffer getMipmap(uint32_t mipmap = 0, uint32_t layer = 0, uint32_t face = 0) const;
+    size_t getOffset(uint32_t mipmap = 0, uint32_t layer = 0, uint32_t face = 0) const;
+    MemoryBuffer getRawImage() const;
     uint8_t* editMipmap(uint32_t mipmap = 0, uint32_t layer = 0, uint32_t face = 0);
     void createEmpty(
         uint32_t width,

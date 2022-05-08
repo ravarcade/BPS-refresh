@@ -2,9 +2,15 @@
 #include <memory>
 #include <vulkan/vulkan.h>
 #include "IRenderingEngine.hpp"
+#include "common/MemoryBuffer.hpp"
 #include "common/Rect2D.hpp"
 
 struct GLFWwindow;
+
+namespace common
+{
+struct Image;
+} // namespace common
 
 namespace renderingEngine
 {
@@ -22,6 +28,8 @@ struct SharedUniformBufferObject;
 struct CommandBuffers;
 struct PipelineStatistic;
 struct DescriptorSetManager;
+struct Gui;
+struct Texture;
 
 struct Context
 {
@@ -59,6 +67,27 @@ struct Context
         VkDeviceMemory&,
         VkSharingMode = VK_SHARING_MODE_EXCLUSIVE);
 
+    // tools
+    void createImage(Texture&, common::Image&);
+    void copyToStagingBuffer(common::Image&, uint32_t = -1);
+    void copyToStagingBuffer(MemoryBuffer);
+    void transitionImageLayout(
+        VkImage image,
+        uint32_t baseMipmap,
+        uint32_t mipmapsCount,
+        uint32_t baseLayer,
+        uint32_t layersCount,
+        VkAccessFlags srcAccessMask,
+        VkAccessFlags dstAccessMask,
+        VkImageLayout oldLayout,
+        VkImageLayout newLayout,
+        VkPipelineStageFlags srcStageMask,
+        VkPipelineStageFlags dstStageMask);
+    void copyBufferToImage(VkImage, common::Image&);
+    void executeSingleTimeCommands(VkCommandBuffer&);
+    void blitImage(VkImage image, uint32_t srcMip, uint32_t dstMip, common::Image& img);
+    VkSampler createSampler(uint32_t mipmaps, bool enableAnisotrophy);
+
     const Rect2D& rect;
     GlfwImpl& glfw;
     // VkInstance instance = VK_NULL_HANDLE;
@@ -79,6 +108,11 @@ struct Context
     std::unique_ptr<CommandBuffers> commandBuffers;
     std::unique_ptr<PipelineStatistic> pipelineStatistic;
     std::unique_ptr<DescriptorSetManager> descriptorSetManager;
+    std::unique_ptr<Gui> ui;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 
     template <typename T>
     void vkDestroy(T& v)

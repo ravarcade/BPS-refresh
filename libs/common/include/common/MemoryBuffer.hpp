@@ -1,4 +1,5 @@
 #pragma once
+#include <span>
 
 using MemoryBuffer = std::span<const uint8_t>;
 

@@ -14,6 +14,7 @@ set(SOURCES
     src/impl/CommandPools.hpp
     src/impl/Context.cpp
     src/impl/Context.hpp
+    src/impl/ContextTools.cpp
     src/impl/DefferedRenderPass.cpp
     src/impl/DefferedRenderPass.hpp
     src/impl/DescriptorSetManager.cpp
@@ -24,6 +25,8 @@ set(SOURCES
     src/impl/FrameBufferAttachment.hpp
     src/impl/GlfwImpl.cpp
     src/impl/GlfwImpl.hpp
+    src/impl/Gui.cpp
+    src/impl/Gui.hpp
     src/impl/IRenderingEngine.hpp
     src/impl/LogicalDevice.cpp
     src/impl/LogicalDevice.hpp
@@ -48,6 +51,9 @@ set(SOURCES
     src/impl/SwapChain.hpp
     src/impl/SwapChainSupportDetails.cpp
     src/impl/SwapChainSupportDetails.hpp
+    src/impl/Texture.hpp
+    src/impl/Texture2D.cpp
+    src/impl/Texture2D.hpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
@@ -64,8 +70,9 @@ target_link_libraries(${MODULE_NAME}
     PRIVATE
         # SDL2::SDL2_image
         glfw
-        Vulkan::Vulkan
         glm::glm
+        imgui::imgui
+        Vulkan::Vulkan
     )
 
 add_subdirectory(ut)

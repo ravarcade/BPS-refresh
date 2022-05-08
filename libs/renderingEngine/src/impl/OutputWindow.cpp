@@ -1,22 +1,23 @@
 #include "OutputWindow.hpp"
 #include <GLFW/glfw3.h>
 #include <set>
+#include "CommandBuffers.hpp"
 #include "CommandPools.hpp"
+#include "DefferedRenderPass.hpp"
+#include "DescriptorSetManager.hpp"
+#include "ForwardRenderPass.hpp"
+#include "Gui.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
+#include "PipelineStatistic.hpp"
 #include "QueueFamilyIndices.hpp"
-#include "DefferedRenderPass.hpp"
-#include "ForwardRenderPass.hpp"
 #include "Semaphores.hpp"
+#include "SharedUniformBufferObject.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
 #include "SwapChainSupportDetails.hpp"
 #include "glfwImpl.hpp"
 #include "renderingEngineImpl.hpp"
-#include "SharedUniformBufferObject.hpp"
-#include "CommandBuffers.hpp"
-#include "PipelineStatistic.hpp"
-#include "DescriptorSetManager.hpp"
 
 namespace renderingEngine
 {
@@ -43,6 +44,7 @@ void OutputWindow::prepare()
     descriptorSetManager = std::make_unique<DescriptorSetManager>(*this);
 
     commandBuffers = std::make_unique<CommandBuffers>(*this);
+    ui = std::make_unique<Gui>(*this);
 }
 
 void OutputWindow::draw()
