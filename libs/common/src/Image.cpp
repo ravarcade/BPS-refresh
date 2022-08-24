@@ -43,7 +43,7 @@ Image::Image()
 {
 }
 
-Image::Image(const MemoryBuffer _memBuf, uint32_t _width, uint32_t _height, PixelFormat _format, uint32_t _pitch)
+Image::Image(MemoryBuffer _memBuf, uint32_t _width, uint32_t _height, PixelFormat _format, uint32_t _pitch)
     : width{_width}
     , pitch{_pitch ? _pitch : getPitch(_format, _width)}
     , height{_height and pitch ? _height : static_cast<uint32_t>(_memBuf.size() / pitch)}

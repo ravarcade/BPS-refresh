@@ -16,6 +16,8 @@ sdl2-image:x64-mingw-dynamic                       2.0.5#5          SDL_image is
 sdl2-image[libjpeg-turbo]:x64-mingw-dynamic                         Support for JPEG image format
 sdl2-image[libwebp]:x64-mingw-dynamic                               Support for WEBP image format.
 sdl2:x64-mingw-dynamic                             2.0.20#2         Simple DirectMedia Layer is a cross-platform dev...
+spirv-cross:x64-mingw-dynamic                      2021-01-15#2     SPIRV-Cross is a practical tool and library for ...
+spirv-headers:x64-mingw-dynamic                    1.3.204.1        Machine-readable files for the SPIR-V Registry
 vcpkg-cmake-config:x64-mingw-dynamic               2022-02-06
 vcpkg-cmake-config:x64-windows                     2022-02-06
 vcpkg-cmake:x64-mingw-dynamic                      2022-04-07

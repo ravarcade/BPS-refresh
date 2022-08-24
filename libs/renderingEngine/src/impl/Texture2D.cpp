@@ -1,7 +1,7 @@
 #include "Texture2D.hpp"
 #include "Context.hpp"
-#include "DescriptorSetManager.hpp"
 #include "common/Image.hpp"
+#include "DescriptorSetManager.hpp"
 
 namespace
 {
@@ -111,8 +111,9 @@ void Texture2D::loadTexture(common::Image& img)
             VK_PIPELINE_STAGE_TRANSFER_BIT,
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
     }
-    // vkt.Execute();
+
     context.executeSingleTimeCommands(context.commandBuffer);
+
 
     // === create sampler
     // ============================================================================================================

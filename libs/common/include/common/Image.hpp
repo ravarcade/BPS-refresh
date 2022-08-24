@@ -18,7 +18,7 @@ class Image
 public:
     Image();
     Image(
-        const MemoryBuffer memBuf,
+        MemoryBuffer memBuf,
         uint32_t width,
         uint32_t height = 0,
         PixelFormat format = PixelFormat::R8G8B8A8_UNORM,

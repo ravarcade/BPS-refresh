@@ -19,7 +19,7 @@ using SurfaceDeleter = decltype(
         if (res) SDL_FreeSurface(res);
     });
 
-auto createSafeSwop(const MemoryBuffer& srcMemBuf)
+auto createSafeSwop(MemoryBuffer srcMemBuf)
 {
     return std::unique_ptr<SDL_RWops, RwopDeleter>(SDL_RWFromConstMem(srcMemBuf.data(), srcMemBuf.size()));
 }
@@ -52,7 +52,7 @@ bool initSdl()
 
 namespace Importer
 {
-bool DecodeSDL(Image& dst, const MemoryBuffer&& srcMemBuf, const char *imgType)
+bool DecodeSDL(Image& dst, MemoryBuffer srcMemBuf, const char *imgType)
 {
     if (not initSdl()) return false;
 
