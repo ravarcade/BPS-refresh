@@ -1,8 +1,9 @@
+#include <array>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <array>
 #include "shaders/ShaderCompiler.hpp"
 #include "shaders/ShaderReflections.hpp"
+#include "tools/writeFile.hpp"
 
 using namespace renderingEngine;
 // fft / ifft: https://www.youtube.com/watch?v=h7apO7q16V0
@@ -57,9 +58,11 @@ void main()
 )");
 } // namespace
 
-TEST(shaderReflections, true)
+TEST(shaderReflections, compileAndParseVertexShader)
 {
     ShaderCompiler sut;
-    sut.compile(shaderProgram);
+    auto bin = sut.compile(shaderProgram);
+    tools::writeFile("testShader.bin", bin); // for testing and manual comparation of results with glslc.exe
+    ShaderReflections sr(bin);
     EXPECT_TRUE(true);
 }

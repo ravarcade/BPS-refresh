@@ -11,7 +11,6 @@
 namespace
 {
 using namespace glslang;
-
 const glslang_resource_t DefaultTBuiltInResource = {
     /* .MaxLights = */ 32,
     /* .MaxClipPlanes = */ 6,
@@ -107,7 +106,8 @@ const glslang_resource_t DefaultTBuiltInResource = {
     /* .maxMeshViewCountNV = */ 4,
     /* .maxDualSourceDrawBuffersEXT = */ 1,
 
-    /* .limits = */ {
+    /* .limits = */
+    {
         /* .nonInductiveForLoops = */ 1,
         /* .whileLoops = */ 1,
         /* .doWhileLoops = */ 1,
@@ -214,7 +214,8 @@ const TBuiltInResource defaultBuiltInResources = {
     /* .maxMeshViewCountNV = */ 4,
     /* .maxDualSourceDrawBuffersEXT = */ 1,
 
-    /* .limits = */ {
+    /* .limits = */
+    {
         /* .nonInductiveForLoops = */ 1,
         /* .whileLoops = */ 1,
         /* .doWhileLoops = */ 1,
@@ -235,7 +236,9 @@ struct ShaderSettings
     bool forwardCompatible;
     EShMessages message;
     EShClient client;
-    EShTargetClientVersion version;
+    EShTargetClientVersion clientVersion;
+    EShTargetLanguage target;
+    EShTargetLanguageVersion targetVersion;
 };
 
 ShaderSettings defaults{
@@ -246,132 +249,79 @@ ShaderSettings defaults{
     false,
     EShMsgDefault,
     EShClient::EShClientVulkan,
-    EShTargetClientVersion::EShTargetVulkan_1_3
-};
+    EShTargetClientVersion::EShTargetVulkan_1_2,
+    EShTargetLanguage::EShTargetSpv,
+    EShTargetLanguageVersion::EShTargetSpv_1_5};
 
-std::vector<uint32_t> compileShaderToSPIRV_Vulkan(EShLanguage stage, const char* shaderSource)
+TShader parseShader(EShLanguage stage, const char* shaderSource)
 {
     TShader shader{stage};
-    std::string preprocessedGLSL;
-    TShader::ForbidIncluder includer;
-    spv::SpvBuildLogger logger;
-    SpvOptions spvOptions;
-    spvOptions.validate = true;
-
     shader.setStrings(&shaderSource, 1);
-    shader.setEnvClient(defaults.client, defaults.version); 
-
+    shader.setEnvClient(defaults.client, defaults.clientVersion);
+    shader.setEnvTarget(defaults.target, defaults.targetVersion);
     if (not shader.parse(
-        defaults.builtInResources,
-        defaults.defaultVersion,
-        defaults.forwardCompatible,
-        defaults.message))
+            defaults.builtInResources, defaults.defaultVersion, defaults.forwardCompatible, defaults.message))
     {
-        log_err("{}\n{}\n", shader.getInfoLog(), shader.getInfoDebugLog());
-        return {};
+        log_err("{}\n{}", shader.getInfoLog(), shader.getInfoDebugLog());
+        throw "parseShader error";
     }
+    return shader;
+}
 
-    TProgram program;
-    program.addShader(&shader);
-
-    if (not program.link(static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules))) {
-        log_err("{}\n{}\n", shader.getInfoLog(), shader.getInfoDebugLog());
-        return {};
+void linkProgram(TProgram& program)
+{
+    if (not program.link(static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules)))
+    {
+        log_err("{}\n{}", program.getInfoLog(), program.getInfoDebugLog());
+        throw "create program error";
     }
+}
 
-    const TIntermediate* intermediate = program.getIntermediate(stage);
+std::vector<uint32_t> getSpirv(EShLanguage stage, TProgram& program)
+{
     std::vector<uint32_t> spirv;
-    GlslangToSpv(*intermediate, spirv, &logger, &spvOptions);
+    spv::SpvBuildLogger logger;
+    SpvOptions spvOptions{};
+    spvOptions.validate = true;
+    GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);
 
     auto spirv_messages = logger.getAllMessages();
     if (spirv_messages.size())
-        log_inf("{}\b", spirv_messages);
-
+    {
+        log_inf("{}", spirv_messages); // err?
+    }
     return spirv;
 }
-/*
-std::vector<uint32_t> compileShaderToSPIRV_Vulkan(glslang_stage_t stage, const char* shaderSource)
+
+std::vector<uint32_t> compileShaderToSPIRV_Vulkan(EShLanguage stage, const char* shaderSource)
+try
 {
-    const glslang_input_t input = {
-        .language = GLSLANG_SOURCE_GLSL,
-        .stage = stage,
-        .client = GLSLANG_CLIENT_VULKAN,
-        .client_version = GLSLANG_TARGET_VULKAN_1_2,
-        .target_language = GLSLANG_TARGET_SPV,
-        .target_language_version = GLSLANG_TARGET_SPV_1_5,
-        .code = shaderSource,
-        .default_version = 100,
-        .default_profile = GLSLANG_NO_PROFILE,
-        .force_default_version_and_profile = false,
-        .forward_compatible = false,
-        .messages = GLSLANG_MSG_DEFAULT_BIT,
-        .resource = reinterpret_cast<const glslang_resource_t*>(&DefaultTBuiltInResource),
-    };
-
-    glslang_shader_t* shader = glslang_shader_create(&input);
-
-    if (!glslang_shader_preprocess(shader, &input))	{
-        // printf("GLSL preprocessing failed %s\n", fileName);
-        // printf("%s\n", glslang_shader_get_info_log(shader));
-        // printf("%s\n", glslang_shader_get_info_debug_log(shader));
-        // printf("%s\n", input.code);
-        glslang_shader_delete(shader);
-        return std::vector<uint32_t>();
-    }
-
-    if (!glslang_shader_parse(shader, &input)) {
-        // printf("GLSL parsing failed %s\n", fileName);
-        // printf("%s\n", glslang_shader_get_info_log(shader));
-        // printf("%s\n", glslang_shader_get_info_debug_log(shader));
-        // printf("%s\n", glslang_shader_get_preprocessed_code(shader));
-        glslang_shader_delete(shader);
-        return std::vector<uint32_t>();
-    }
-
-    glslang_program_t* program = glslang_program_create();
-    glslang_program_add_shader(program, shader);
-
-    if (!glslang_program_link(program, GLSLANG_MSG_SPV_RULES_BIT | GLSLANG_MSG_VULKAN_RULES_BIT)) {
-        // printf("GLSL linking failed %s\n", fileName);
-        // printf("%s\n", glslang_program_get_info_log(program));
-        // printf("%s\n", glslang_program_get_info_debug_log(program));
-        glslang_program_delete(program);
-        glslang_shader_delete(shader);
-        return std::vector<uint32_t>();
-    }
-
-    glslang_program_SPIRV_generate(program, stage);
-
-    std::vector<uint32_t> outShaderModule(glslang_program_SPIRV_get_size(program));
-    glslang_program_SPIRV_get(program, outShaderModule.data());
-
-    const char* spirv_messages = glslang_program_SPIRV_get_messages(program);
-    if (spirv_messages)
-        log_inf("%s\b", spirv_messages);
-    //     printf("(%s) %s\b", fileName, spirv_messages);
-
-    glslang_program_delete(program);
-    glslang_shader_delete(shader);
-
-    return outShaderModule;
+    TShader shader = parseShader(stage, shaderSource);
+    TProgram program;
+    program.addShader(&shader);
+    linkProgram(program);
+    return getSpirv(stage, program);
 }
-*/
+catch (const char* errMsg)
+{
+    log_err("Compilation failed: {}", errMsg);
+    return {};
 }
+} // namespace
 
 namespace renderingEngine
 {
-ShaderCompiler::ShaderCompiler() : isIntialized{InitializeProcess()}
-{}
+ShaderCompiler::ShaderCompiler() : isIntialized{InitializeProcess()} {}
 
 ShaderCompiler::~ShaderCompiler()
 {
     FinalizeProcess();
 }
 
-std::vector<uint32_t> ShaderCompiler::compile(MemoryBuffer sourceCode)
+std::vector<uint8_t> ShaderCompiler::compile(MemoryBuffer sourceCode)
 {
-    return compileShaderToSPIRV_Vulkan(EShLanguage::EShLangVertex, reinterpret_cast<const char *>(sourceCode.data()));
-    // return compileShaderToSPIRV_Vulkan(GLSLANG_STAGE_VERTEX, reinterpret_cast<const char *>(sourceCode.data()));
+    auto spirv =
+        compileShaderToSPIRV_Vulkan(EShLanguage::EShLangVertex, reinterpret_cast<const char*>(sourceCode.data()));
+    return {reinterpret_cast<uint8_t*>(spirv.data()), reinterpret_cast<uint8_t*>(spirv.data() + spirv.size())};
 }
-
 } // namespace renderingEngine

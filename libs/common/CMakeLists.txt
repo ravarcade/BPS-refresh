@@ -17,6 +17,7 @@ set(HEADERS
     include/tools/contains.hpp
     include/tools/countBits.hpp
     include/tools/to_vector.hpp
+    include/tools/writeFile.hpp
 )
 
 add_library(${MODULE_NAME} STATIC ${SOURCES} ${HEADERS}) 

@@ -12,7 +12,8 @@ public:
     ShaderCompiler();
     ~ShaderCompiler();
 
-    std::vector<uint32_t> compile(MemoryBuffer sourceCode);
+    std::vector<uint8_t> compile(MemoryBuffer sourceCode);
+
 private:
     bool isIntialized{false};
 };

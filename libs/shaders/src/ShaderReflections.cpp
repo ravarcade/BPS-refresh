@@ -17,7 +17,7 @@ constexpr bool ForceHostVisibleUBOS = true;
 
 CompilerGLSL compile(MemoryBuffer source)
 {
-    return CompilerGLSL(reinterpret_cast<const uint32_t*>(source.data()), (source.size() + 3 / sizeof(uint32_t)));
+    return CompilerGLSL(reinterpret_cast<const uint32_t*>(source.data()), (source.size() + 3) / sizeof(uint32_t));
 }
 
 ShaderProgramInfo createProgramInfo(CompilerGLSL& compiler)
