@@ -3,11 +3,13 @@ set(MODULE_NAME shaders)
 set(HEADERS 
     include/shaders/ShaderCompiler.hpp
     include/shaders/ShaderReflections.hpp
+    include/shaders/ShaderVariable.hpp
 )
 
 set(SOURCES 
     src/ShaderCompiler.cpp
     src/ShaderReflections.cpp
+    src/ShaderVariable.cpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
