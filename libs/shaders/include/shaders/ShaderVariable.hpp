@@ -7,33 +7,28 @@
 
 namespace renderingEngine
 {
-struct SvFloat
+struct SvBase
 {
     std::string name;
     uint32_t vecsize{1};
     uint32_t columns{1};
+    std::vector<uint32_t> array{};
+    uint32_t offset;
+    uint32_t size;
 };
 
-struct SvInt
+struct SvFloat : SvBase
 {
-    std::string name;
-    uint32_t vecsize{1};
-    uint32_t columns{1};
+};
+
+struct SvInt : SvBase
+{
 };
 
 struct SvUbo;
 struct SvStruct;
-using ShaderVariable = std::variant<SvUbo, SvStruct, SvFloat, SvInt>;
-
-struct SvStruct
-{
-    std::string name;
-    uint32_t vecsize{1};
-    uint32_t columns{1};
-
-    // StructDetails details;
-    std::vector<ShaderVariable> members;
-};
+struct SvPushConst;
+using ShaderVariable = std::variant<SvUbo, SvPushConst, SvStruct, SvFloat, SvInt>;
 
 struct SvUbo
 {
@@ -42,8 +37,26 @@ struct SvUbo
     uint32_t stage = VK_SHADER_STAGE_VERTEX_BIT;
     std::string name;
     std::string rootTypeName;
+    uint32_t offset;
+    uint32_t size;
     bool isSharedUBO = false;
     bool isHostVisibleUBO = false;
+    std::vector<ShaderVariable> members;
+};
+
+struct SvPushConst
+{
+    uint32_t set{0};
+    uint32_t binding{0};
+    std::string name;
+    std::string rootTypeName;
+    uint32_t offset;
+    uint32_t size;
+    std::vector<ShaderVariable> members;
+};
+
+struct SvStruct : SvBase
+{
     std::vector<ShaderVariable> members;
 };
 

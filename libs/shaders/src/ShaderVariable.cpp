@@ -14,20 +14,41 @@ Overload(Ts...) -> Overload<Ts...>;
 template <typename T>
 void toString(std::ostream& out, const T& val)
 {
-    out << fmt::format("{{ name: {}, vecsize: {}, columns: {} }}", val.name, val.vecsize, val.columns);
+    out << fmt::format(
+        "{{ name: {}, vecsize: {}, columns: {}, array: {}, offset: {}, size: {} }}",
+        val.name,
+        val.vecsize,
+        val.columns,
+        val.array,
+        val.offset,
+        val.size);
 }
 
 template <>
 void toString(std::ostream& out, const SvUbo& val)
 {
-    out << fmt::format("{{ ubo: {}, members: {} }}", val.name, val.members);
+    out << fmt::format("{{ ubo: {}, size: {}, members: {} }}", val.name, val.size, val.members);
 }
 
 template <>
 void toString(std::ostream& out, const SvStruct& val)
 {
     out << fmt::format(
-        "{{name: {}, vecsize: {}, columns: {}, members: {} }}", val.name, val.vecsize, val.columns, val.members);
+        "{{ name: {}, vecsize: {}, columns: {}, array: {}, offset: {}, size: {}, members: {} }}",
+        val.name,
+        val.vecsize,
+        val.columns,
+        val.array,
+        val.offset,
+        val.size,
+        val.members);
+}
+
+template <>
+void toString(std::ostream& out, const SvPushConst& val)
+{
+    out << fmt::format(
+        "{{ name: {}, offset: {}, size: {}, members: {} }}", val.name, val.offset, val.size, val.members);
 }
 
 std::ostream& operator<<(std::ostream& out, const ShaderVariable& val)

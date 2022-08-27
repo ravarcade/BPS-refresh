@@ -35,7 +35,7 @@ struct ResourceLayout
 
 struct ShaderReflections
 {
-    ShaderReflections(MemoryBuffer);
+    ShaderReflections(MemoryBuffer, MemoryBuffer);
     ~ShaderReflections();
 
     // void reset(VkCommandBuffer);
@@ -47,8 +47,10 @@ struct ShaderReflections
     // VkQueryPool queryPool = VK_NULL_HANDLE;
     // std::vector<uint64_t> stats;
 private:
-    void compile(MemoryBuffer);
+    void compile(MemoryBuffer, MemoryBuffer);
     std::vector<ShaderProgramInfo> programs;
     std::vector<SvUbo> ubos;
+    std::vector<SvPushConst> pushConstants;
+    ResourceLayout resourceLayout;
 };
 } // namespace renderingEngine

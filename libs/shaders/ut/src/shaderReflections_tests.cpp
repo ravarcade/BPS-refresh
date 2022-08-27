@@ -16,6 +16,50 @@ constexpr auto surceCode(const char *msg)
     return MemoryBuffer(begin, strlen(msg));
 }
 
+const auto imgui_vert = surceCode(R"(
+#version 450
+
+layout (location = 0) in vec2 inPos;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec4 inColor;
+
+layout (push_constant) uniform PushConstants {
+	vec2 scale;
+	vec2 translate;
+} pushConstants;
+
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec4 outColor;
+
+out gl_PerVertex 
+{
+	vec4 gl_Position;   
+};
+
+void main() 
+{
+	outUV = inUV;
+	outColor = inColor;
+	gl_Position = vec4(inPos * pushConstants.scale + pushConstants.translate, 0.0, 1.0);
+}
+)");
+
+const auto imgui_frag = surceCode(R"(
+#version 450
+
+layout (binding = 0) uniform sampler2D fontSampler;
+
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec4 inColor;
+
+layout (location = 0) out vec4 outColor;
+
+void main() 
+{
+	outColor = inColor * texture(fontSampler, inUV);
+}
+)");
+
 const auto shaderProgram = surceCode(R"(
 #version 450
 
@@ -63,6 +107,15 @@ TEST(shaderReflections, compileAndParseVertexShader)
     ShaderCompiler sut;
     auto bin = sut.compile(shaderProgram);
     tools::writeFile("testShader.bin", bin); // for testing and manual comparation of results with glslc.exe
-    ShaderReflections sr(bin);
+    ShaderReflections sr(bin, bin);
+    EXPECT_TRUE(true);
+}
+
+TEST(shaderReflections, compileAndParseImguiVertexShader)
+{
+    ShaderCompiler sut;
+    auto bin = sut.compile(imgui_vert);
+    auto bin2 = sut.compile(imgui_frag);
+    ShaderReflections sr(bin, bin2);
     EXPECT_TRUE(true);
 }

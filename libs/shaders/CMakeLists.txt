@@ -10,6 +10,8 @@ set(SOURCES
     src/ShaderCompiler.cpp
     src/ShaderReflections.cpp
     src/ShaderVariable.cpp
+    src/ShaderVariableBuilder.cpp
+    src/ShaderVariableBuilder.hpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
