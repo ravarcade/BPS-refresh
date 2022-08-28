@@ -14,7 +14,7 @@ class ShaderVariableBuilder
     using SPIRType = SPIRV_CROSS_NAMESPACE::SPIRType;
 
 public:
-    ShaderVariableBuilder(CompilerGLSL& compiler, const SPIRType& baseType, uint32_t idx)
+    ShaderVariableBuilder(CompilerGLSL& compiler, const SPIRType& baseType, size_t idx)
         : compiler{compiler}, baseType{baseType}, idx{idx}
     {
     }
@@ -49,6 +49,6 @@ public:
 private:
     CompilerGLSL& compiler;
     const SPIRType& baseType;
-    uint32_t idx;
+    size_t idx;
 };
 } // namespace renderingEngine

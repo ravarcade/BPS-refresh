@@ -107,15 +107,16 @@ TEST(shaderReflections, compileAndParseVertexShader)
     ShaderCompiler sut;
     auto bin = sut.compile(shaderProgram);
     tools::writeFile("testShader.bin", bin); // for testing and manual comparation of results with glslc.exe
-    ShaderReflections sr(bin, bin);
+    ShaderReflections sr({bin});
     EXPECT_TRUE(true);
 }
 
 TEST(shaderReflections, compileAndParseImguiVertexShader)
 {
     ShaderCompiler sut;
-    auto bin = sut.compile(imgui_vert);
-    auto bin2 = sut.compile(imgui_frag);
-    ShaderReflections sr(bin, bin2);
+    // auto vert = sut.compile(imgui_vert);
+    // auto frag = sut.compile(imgui_frag);
+    // ShaderReflections sr({vert, frag});
+    ShaderReflections sr({sut.compile(imgui_vert), sut.compile(imgui_frag)});
     EXPECT_TRUE(true);
 }

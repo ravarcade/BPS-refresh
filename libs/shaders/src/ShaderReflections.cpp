@@ -33,89 +33,66 @@ CompilerGLSL compile(MemoryBuffer source)
 //     auto& entry_point = *entry_points.begin();
 //     return {entry_point.name, executionModelToStage[entry_point.execution_model]};
 // }
-/*
-class SvBuilder
+
+uint32_t executionModelToStage(spv::ExecutionModel em)
+{
+    static std::unordered_map<spv::ExecutionModel, uint32_t> executionModelMap = {
+        {spv::ExecutionModel::ExecutionModelVertex, VK_SHADER_STAGE_VERTEX_BIT},
+        {spv::ExecutionModel::ExecutionModelTessellationControl, VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
+        {spv::ExecutionModel::ExecutionModelTessellationEvaluation, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
+        {spv::ExecutionModel::ExecutionModelGeometry, VK_SHADER_STAGE_GEOMETRY_BIT},
+        {spv::ExecutionModel::ExecutionModelFragment, VK_SHADER_STAGE_FRAGMENT_BIT},
+        {spv::ExecutionModel::ExecutionModelGLCompute, VK_SHADER_STAGE_COMPUTE_BIT},
+    };
+    assert(executionModelMap.find(em) != executionModelMap.end());
+    return executionModelMap[em];
+}
+
+class ShaderReflectionsImpl
 {
 public:
-    SvBuilder(CompilerGLSL& compiler, const SPIRType& baseType, uint32_t idx)
-        : compiler{compiler}, baseType{baseType}, idx{idx}
+    ShaderReflectionsImpl(CompilerGLSL& compiler) : compiler{compiler}
     {
+        auto entry_points = compiler.get_entry_points_and_stages();
+        auto& entry_point = entry_points[0];
+        entryPointName = entry_point.name;
+        stage = executionModelToStage(entry_point.execution_model);
     }
 
-    template <typename T>
-    T build()
+    void parseUniformBuffers(std::vector<SvUbo>& ubos)
     {
-        auto typeId = baseType.member_types[idx];
-        auto member_type = compiler.get_type(typeId);
-        T t;
-        t.name = compiler.get_member_name(baseType.self, idx);
-        t.vecsize = member_type.vecsize;
-        t.columns = member_type.columns;
-        t.array.resize(member_type.array.size());
-        for (uint32_t i = 0; i < t.array.size(); ++i)
-        {
-            t.array[i] = member_type.array[i];
-        }
-        t.offset = compiler.type_struct_member_offset(baseType, idx);
-        t.size = static_cast<uint32_t>(compiler.get_declared_struct_member_size(baseType, idx));
-        return t;
-    }
-
-    template <typename T>
-    T buildWithMembers(std::vector<ShaderVariable> members)
-    {
-        T t = build<T>();
-        t.members = members;
-        return t;
-    }
-
-private:
-    CompilerGLSL& compiler;
-    const SPIRType& baseType;
-    uint32_t idx;
-};
-*/
-class SrUniformBuffers
-{
-public:
-    SrUniformBuffers(CompilerGLSL& compiler) : compiler{compiler} {}
-
-    std::vector<SvUbo> parseUniformBuffers()
-    {
-        std::vector<SvUbo> ubos;
         for (auto& uniform_buffer : compiler.get_shader_resources().uniform_buffers)
         {
             ubos.push_back(parseUniformBuffer(uniform_buffer));
         }
-        return ubos;
+    }
+
+    template <typename T>
+    T createSv(Resource& res)
+    {
+        T sv;
+        sv.set = compiler.has_decoration(res.id, spv::DecorationDescriptorSet)
+            ? compiler.get_decoration(res.id, spv::DecorationDescriptorSet)
+            : 0;
+        sv.binding = compiler.has_decoration(res.id, spv::DecorationBinding)
+            ? compiler.get_decoration(res.id, spv::DecorationBinding)
+            : 0;
+        sv.name = compiler.get_name(res.id);
+        sv.rootTypeName = compiler.get_name(res.base_type_id);
+        sv.offset = 0u;
+        sv.size = static_cast<uint32_t>(compiler.get_declared_struct_size(compiler.get_type(res.base_type_id)));
+
+        sv.members = getStructMembers(compiler.get_type(res.type_id));
+        return sv;
     }
 
     SvUbo parseUniformBuffer(Resource& res)
     {
-        auto set = compiler.has_decoration(res.id, spv::DecorationDescriptorSet)
-            ? compiler.get_decoration(res.id, spv::DecorationDescriptorSet)
-            : 0;
-        auto binding = compiler.has_decoration(res.id, spv::DecorationBinding)
-            ? compiler.get_decoration(res.id, spv::DecorationBinding)
-            : 0;
-        auto name = compiler.get_name(res.id);
-        auto rootTypeName = compiler.get_name(res.base_type_id);
-        auto offset = 0u;
-        auto size = static_cast<uint32_t>(compiler.get_declared_struct_size(compiler.get_type(res.base_type_id)));
-        auto isSharedUBO = rootTypeName == SHAREDUBOTYPENAME;
-        auto isHostVisibleUBO = isSharedUBO || ForceHostVisibleUBOS;
-        auto members = getStructMembers(compiler.get_type(res.type_id));
-        return {
-            set,
-            binding,
-            VK_SHADER_STAGE_VERTEX_BIT,
-            name,
-            rootTypeName,
-            offset,
-            size,
-            isSharedUBO,
-            isHostVisibleUBO,
-            members};
+        auto sv = createSv<SvUbo>(res);
+        sv.isSharedUBO = sv.rootTypeName == SHAREDUBOTYPENAME;
+        sv.isHostVisibleUBO = sv.isSharedUBO || ForceHostVisibleUBOS;
+        sv.stage = stage;
+        return sv;
     }
 
     std::vector<ShaderVariable> getStructMembers(const SPIRType& type)
@@ -128,7 +105,7 @@ public:
         return members;
     }
 
-    ShaderVariable getStructMember(const SPIRType& baseType, uint32_t idx)
+    ShaderVariable getStructMember(const SPIRType& baseType, size_t idx)
     {
         ShaderVariableBuilder svb(compiler, baseType, idx);
         auto typeId = baseType.member_types[idx];
@@ -150,44 +127,55 @@ public:
         return {};
     }
 
-    std::vector<SvPushConst> parsePushConstants()
+    void parsePushConstants(std::vector<SvPushConst>& pushConstants)
     {
-        std::vector<SvPushConst> pushConstants;
+        // return compiler.get_shader_resources().push_constant_buffers |
+        //     std::views::filter([this](auto& pushConst) { return createSv<SvPushConst>(pushConst); });
         for (auto& pushConst : compiler.get_shader_resources().push_constant_buffers)
         {
-            pushConstants.push_back(parsePushConstant(pushConst, pushConstants));
+            pushConstants.push_back(createSv<SvPushConst>(pushConst));
         }
-        return pushConstants;
     }
 
-    SvPushConst parsePushConstant(Resource& res, std::vector<SvPushConst>& pushConstants)
+    void parseSamplers(std::vector<SvSampler>& samplers)
     {
-        auto set = compiler.has_decoration(res.id, spv::DecorationDescriptorSet)
-            ? compiler.get_decoration(res.id, spv::DecorationDescriptorSet)
-            : 0;
-        auto binding = compiler.has_decoration(res.id, spv::DecorationBinding)
-            ? compiler.get_decoration(res.id, spv::DecorationBinding)
-            : 0;
-        auto name = compiler.get_name(res.id);
-        auto rootTypeName = compiler.get_name(res.base_type_id);
-        auto offset = 0u;
-        auto size = static_cast<uint32_t>(compiler.get_declared_struct_size(compiler.get_type(res.base_type_id)));
-
-        auto members = getStructMembers(compiler.get_type(res.type_id));
-
-        return SvPushConst{set, binding, name, rootTypeName, offset, size, members};
+        for (auto& resource : compiler.get_shader_resources().sampled_images)
+        {
+            auto set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+            auto binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+            auto name = compiler.get_name(resource.id);
+            const SPIRType& type = compiler.get_type(resource.type_id);
+            // uint32_t descriptorCount = type.array.size() == 1 ? type.array[0] : 1;
+            assert(type.basetype == SPIRType::SampledImage);
+            if (type.basetype == SPIRType::SampledImage)
+            {
+                samplers.push_back({set, binding, name, static_cast<uint32_t>(type.image.dim), stage});
+                // m_layout.descriptorSets[set].sampled_image_mask |= 1u << binding;
+                // m_layout.descriptorSets[set].descriptorCount[binding] = descriptorCount;
+                // m_layout.descriptorSets[set].stages[binding] |= prg.stage;
+            }
+        }
     }
 
 private:
     CompilerGLSL& compiler;
+    std::string entryPointName;
+    uint32_t stage;
 };
 }; // namespace
 
 namespace renderingEngine
 {
-ShaderReflections::ShaderReflections(MemoryBuffer vert, MemoryBuffer frag)
+ShaderReflections::ShaderReflections(std::vector<MemoryBuffer>&& programs)
 {
-    compile(vert, frag);
+    for (auto& program : programs)
+    {
+        compile(program);
+    }
+    // dump resoult
+    log_inf("ubos: {}", ubos);
+    log_inf("pushConstants: {}", pushConstants);
+    log_inf("samplers: {}", samplers);
     // auto& device = context.device;
     // auto& allocator = context.ire.allocator;
     // VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -205,12 +193,14 @@ ShaderReflections::~ShaderReflections()
     // context.vkDestroy(imageAvailableSemaphore);
 }
 
-void ShaderReflections::compile(MemoryBuffer vert, MemoryBuffer /*frag*/)
+void ShaderReflections::compile(MemoryBuffer program)
 {
-    CompilerGLSL compiler = ::compile(vert);
-    SrUniformBuffers sr{compiler};
-    ubos = sr.parseUniformBuffers();
-    pushConstants = sr.parsePushConstants();
+    CompilerGLSL compiler = ::compile(program);
+    ShaderReflectionsImpl sri{compiler};
+    sri.parseUniformBuffers(ubos);
+    sri.parsePushConstants(pushConstants);
+    sri.parseSamplers(samplers);
+    // sri.parseVertexAttribs(vertexAttribs)
 
     // auto constants = compiler.get_specialization_constants();
     // auto resources = compiler.get_shader_resources();
@@ -218,7 +208,5 @@ void ShaderReflections::compile(MemoryBuffer vert, MemoryBuffer /*frag*/)
     // parseUniformBuffers(compiler);
     // auto entry_points = compiled.get_entry_points_and_stages();
     // auto &entry_point = entry_points[0];
-    log_inf("ubos: {}", ubos);
-    log_inf("pushConstants: {}", pushConstants);
 }
 } // namespace renderingEngine

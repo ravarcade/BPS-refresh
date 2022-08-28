@@ -27,7 +27,13 @@ void toString(std::ostream& out, const T& val)
 template <>
 void toString(std::ostream& out, const SvUbo& val)
 {
-    out << fmt::format("{{ ubo: {}, size: {}, members: {} }}", val.name, val.size, val.members);
+    out << fmt::format(
+        "{{ ubo: {}, set: {}, binding: {}, size: {}, members: {} }}",
+        val.name,
+        val.set,
+        val.binding,
+        val.size,
+        val.members);
 }
 
 template <>
@@ -48,7 +54,20 @@ template <>
 void toString(std::ostream& out, const SvPushConst& val)
 {
     out << fmt::format(
-        "{{ name: {}, offset: {}, size: {}, members: {} }}", val.name, val.offset, val.size, val.members);
+        "{{ name: {}, set: {}, binding: {}, offset: {}, size: {}, members: {} }}",
+        val.name,
+        val.set,
+        val.binding,
+        val.offset,
+        val.size,
+        val.members);
+}
+
+template <>
+void toString(std::ostream& out, const SvSampler& val)
+{
+    out << fmt::format(
+        "{{ name: {}, set: {}, binding: {}, dim: {}, stage: {} }}", val.name, val.set, val.binding, val.dim, val.stage);
 }
 
 std::ostream& operator<<(std::ostream& out, const ShaderVariable& val)
