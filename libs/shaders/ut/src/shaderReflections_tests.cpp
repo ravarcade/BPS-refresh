@@ -114,9 +114,6 @@ TEST(shaderReflections, compileAndParseVertexShader)
 TEST(shaderReflections, compileAndParseImguiVertexShader)
 {
     ShaderCompiler sut;
-    // auto vert = sut.compile(imgui_vert);
-    // auto frag = sut.compile(imgui_frag);
-    // ShaderReflections sr({vert, frag});
-    ShaderReflections sr({sut.compile(imgui_vert), sut.compile(imgui_frag)});
+    ShaderReflections sr({sut.compile(imgui_vert, Shader::vertex), sut.compile(imgui_frag, Shader::fragment)});
     EXPECT_TRUE(true);
 }

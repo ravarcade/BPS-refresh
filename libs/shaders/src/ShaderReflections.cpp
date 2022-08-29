@@ -57,11 +57,12 @@ public:
         auto& entry_point = entry_points[0];
         entryPointName = entry_point.name;
         stage = executionModelToStage(entry_point.execution_model);
+        resources = compiler.get_shader_resources();
     }
 
     void parseUniformBuffers(std::vector<SvUbo>& ubos)
     {
-        for (auto& uniform_buffer : compiler.get_shader_resources().uniform_buffers)
+        for (auto& uniform_buffer : resources.uniform_buffers)
         {
             ubos.push_back(parseUniformBuffer(uniform_buffer));
         }
@@ -129,9 +130,7 @@ public:
 
     void parsePushConstants(std::vector<SvPushConst>& pushConstants)
     {
-        // return compiler.get_shader_resources().push_constant_buffers |
-        //     std::views::filter([this](auto& pushConst) { return createSv<SvPushConst>(pushConst); });
-        for (auto& pushConst : compiler.get_shader_resources().push_constant_buffers)
+        for (auto& pushConst : resources.push_constant_buffers)
         {
             pushConstants.push_back(createSv<SvPushConst>(pushConst));
         }
@@ -139,7 +138,7 @@ public:
 
     void parseSamplers(std::vector<SvSampler>& samplers)
     {
-        for (auto& resource : compiler.get_shader_resources().sampled_images)
+        for (auto& resource : resources.sampled_images)
         {
             auto set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
             auto binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
@@ -157,10 +156,58 @@ public:
         }
     }
 
+    void parseVertexAttribs(std::vector<VertexAttribute>& vertexAttribs)
+    {
+        if (stage == VK_SHADER_STAGE_VERTEX_BIT)
+        {
+            for (auto attrib : resources.stage_inputs)
+            {
+                vertexAttribs.push_back(getVertexAttrib(attrib));
+            }
+        }
+    }
+
+    template <typename T>
+    VertexAttribute createVertexAttribute(Resource& attrib)
+    {
+        return T{
+            compiler.get_decoration(attrib.id, spv::DecorationBinding),
+            compiler.get_decoration(attrib.id, spv::DecorationLocation),
+            compiler.get_name(attrib.id),
+            compiler.get_type(attrib.type_id).vecsize};
+    }
+
+    VertexAttribute getVertexAttrib(Resource& attrib)
+    {
+        const SPIRType& type = compiler.get_type(attrib.type_id);
+        switch (type.basetype)
+        {
+            case SPIRType::BaseType::Float:
+                return createVertexAttribute<VaFloat>(attrib);
+            case SPIRType::BaseType::Int:
+                return createVertexAttribute<VaInt>(attrib);
+            default:
+                log_err("unsuported data type: {} for {}", type.basetype, compiler.get_name(attrib.id));
+        }
+        return {};
+    }
+
+    void parseOutputNames(std::vector<std::string>& outputNames)
+    {
+        if (stage == VK_SHADER_STAGE_FRAGMENT_BIT)
+        {
+            for (uint32_t i = 0; i < resources.stage_outputs.size(); ++i)
+            {
+                outputNames.push_back(compiler.get_name(resources.stage_outputs[i].id));
+            }
+        }
+    }
+
 private:
     CompilerGLSL& compiler;
     std::string entryPointName;
     uint32_t stage;
+    ShaderResources resources;
 };
 }; // namespace
 
@@ -176,6 +223,8 @@ ShaderReflections::ShaderReflections(std::vector<MemoryBuffer>&& programs)
     log_inf("ubos: {}", ubos);
     log_inf("pushConstants: {}", pushConstants);
     log_inf("samplers: {}", samplers);
+    log_inf("vertexAttribs: {}", vertexAttributes);
+    log_inf("outputNames: {}", outputNames);
     // auto& device = context.device;
     // auto& allocator = context.ire.allocator;
     // VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -200,7 +249,8 @@ void ShaderReflections::compile(MemoryBuffer program)
     sri.parseUniformBuffers(ubos);
     sri.parsePushConstants(pushConstants);
     sri.parseSamplers(samplers);
-    // sri.parseVertexAttribs(vertexAttribs)
+    sri.parseVertexAttribs(vertexAttributes);
+    sri.parseOutputNames(outputNames);
 
     // auto constants = compiler.get_specialization_constants();
     // auto resources = compiler.get_shader_resources();

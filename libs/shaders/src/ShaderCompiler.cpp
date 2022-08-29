@@ -1,4 +1,5 @@
 #include "shaders/ShaderCompiler.hpp"
+#include <map>
 #include "common/Logger.hpp"
 
 #include "glslang/Include/glslang_c_interface.h"
@@ -318,10 +319,19 @@ ShaderCompiler::~ShaderCompiler()
     FinalizeProcess();
 }
 
-std::vector<uint8_t> ShaderCompiler::compile(MemoryBuffer sourceCode)
+EShLanguage getVkStage(Shader stage)
 {
-    auto spirv =
-        compileShaderToSPIRV_Vulkan(EShLanguage::EShLangVertex, reinterpret_cast<const char*>(sourceCode.data()));
+    static std::map<Shader, EShLanguage> const vulkanShader = {
+        {Shader::vertex, EShLanguage::EShLangVertex},
+        {Shader::fragment, EShLanguage::EShLangFragment},
+    };
+    assert(vulkanShader.find(stage) != vulkanShader.end());
+    return vulkanShader.find(stage)->second;
+}
+
+std::vector<uint8_t> ShaderCompiler::compile(MemoryBuffer sourceCode, Shader stage)
+{
+    auto spirv = compileShaderToSPIRV_Vulkan(getVkStage(stage), reinterpret_cast<const char*>(sourceCode.data()));
     return {reinterpret_cast<uint8_t*>(spirv.data()), reinterpret_cast<uint8_t*>(spirv.data() + spirv.size())};
 }
 } // namespace renderingEngine

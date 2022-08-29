@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "ShaderVariable.hpp"
+#include "VertexAttribute.hpp"
 #include "common/MemoryBuffer.hpp"
 
 namespace renderingEngine
@@ -53,6 +54,8 @@ private:
     std::vector<SvUbo> ubos;
     std::vector<SvPushConst> pushConstants;
     std::vector<SvSampler> samplers;
+    std::vector<VertexAttribute> vertexAttributes;
+    std::vector<std::string> outputNames;
     ResourceLayout resourceLayout;
 };
 } // namespace renderingEngine

@@ -4,6 +4,7 @@ set(HEADERS
     include/shaders/ShaderCompiler.hpp
     include/shaders/ShaderReflections.hpp
     include/shaders/ShaderVariable.hpp
+    include/shaders/VertexAttribute.hpp
 )
 
 set(SOURCES 
@@ -12,6 +13,7 @@ set(SOURCES
     src/ShaderVariable.cpp
     src/ShaderVariableBuilder.cpp
     src/ShaderVariableBuilder.hpp
+    src/VertexAttribute.cpp
 )
 
 add_compile_definitions(GLFW_INCLUDE_VULKAN)
