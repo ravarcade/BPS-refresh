@@ -12,6 +12,7 @@
 #include "PipelineStatistic.hpp"
 #include "QueueFamilyIndices.hpp"
 #include "Semaphores.hpp"
+#include "ShaderProgram.hpp"
 #include "SharedUniformBufferObject.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
@@ -42,7 +43,7 @@ void OutputWindow::prepare()
     sharedUBO = std::make_unique<SharedUniformBufferObject>(*this);
     pipelineStatistic = std::make_unique<PipelineStatistic>(*this);
     descriptorSetManager = std::make_unique<DescriptorSetManager>(*this);
-
+    shaderProgram = std::make_unique<ShaderProgram>(*this);
     commandBuffers = std::make_unique<CommandBuffers>(*this);
     ui = std::make_unique<Gui>(*this);
 }

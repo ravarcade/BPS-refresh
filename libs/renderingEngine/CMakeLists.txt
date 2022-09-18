@@ -45,8 +45,6 @@ set(SOURCES
     src/impl/Semaphores.hpp
     src/impl/ShaderProgram.hpp
     src/impl/ShaderProgram.cpp
-    src/impl/ShaderReflections.hpp
-    src/impl/ShaderReflections.cpp
     src/impl/SharedUniformBufferObject.cpp
     src/impl/SharedUniformBufferObject.hpp
     src/impl/Surface.cpp
@@ -77,9 +75,10 @@ target_link_libraries(${MODULE_NAME}
         glm::glm
         imgui::imgui
         Vulkan::Vulkan
-        spirv-cross-core
-        spirv-cross-glsl
-        spirv-cross-reflect
+        # spirv-cross-core
+        # spirv-cross-glsl
+        # spirv-cross-reflect
+        shaders
     )
 
 add_subdirectory(ut)

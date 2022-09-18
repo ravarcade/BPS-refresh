@@ -319,17 +319,17 @@ ShaderCompiler::~ShaderCompiler()
     FinalizeProcess();
 }
 
-EShLanguage getVkStage(Shader stage)
+EShLanguage getVkStage(ShaderStage stage)
 {
-    static std::map<Shader, EShLanguage> const vulkanShader = {
-        {Shader::vertex, EShLanguage::EShLangVertex},
-        {Shader::fragment, EShLanguage::EShLangFragment},
+    static std::map<ShaderStage, EShLanguage> const vulkanShader = {
+        {ShaderStage::vertex, EShLanguage::EShLangVertex},
+        {ShaderStage::fragment, EShLanguage::EShLangFragment},
     };
     assert(vulkanShader.find(stage) != vulkanShader.end());
     return vulkanShader.find(stage)->second;
 }
 
-std::vector<uint8_t> ShaderCompiler::compile(MemoryBuffer sourceCode, Shader stage)
+std::vector<uint8_t> ShaderCompiler::compile(MemoryBuffer sourceCode, ShaderStage stage)
 {
     auto spirv = compileShaderToSPIRV_Vulkan(getVkStage(stage), reinterpret_cast<const char*>(sourceCode.data()));
     return {reinterpret_cast<uint8_t*>(spirv.data()), reinterpret_cast<uint8_t*>(spirv.data() + spirv.size())};

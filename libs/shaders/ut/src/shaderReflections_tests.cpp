@@ -10,13 +10,13 @@ using namespace renderingEngine;
 
 namespace {
 
-constexpr auto surceCode(const char *msg)
+constexpr auto sourceCode(const char* msg)
 {
     auto begin = reinterpret_cast<const uint8_t*>(msg);
     return MemoryBuffer(begin, strlen(msg));
 }
 
-const auto imgui_vert = surceCode(R"(
+const auto imgui_vert = sourceCode(R"(
 #version 450
 
 layout (location = 0) in vec2 inPos;
@@ -44,7 +44,7 @@ void main()
 }
 )");
 
-const auto imgui_frag = surceCode(R"(
+const auto imgui_frag = sourceCode(R"(
 #version 450
 
 layout (binding = 0) uniform sampler2D fontSampler;
@@ -60,7 +60,7 @@ void main()
 }
 )");
 
-const auto shaderProgram = surceCode(R"(
+const auto shaderProgram = sourceCode(R"(
 #version 450
 
 // ### Output passed to fragment shader

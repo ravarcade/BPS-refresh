@@ -6,7 +6,7 @@
 
 namespace renderingEngine
 {
-enum class Shader
+enum class ShaderStage
 {
     vertex,
     fragment
@@ -19,7 +19,7 @@ public:
     ShaderCompiler();
     ~ShaderCompiler();
 
-    std::vector<uint8_t> compile(MemoryBuffer sourceCode, Shader shader = Shader::vertex);
+    std::vector<uint8_t> compile(MemoryBuffer, ShaderStage = ShaderStage::vertex);
 
 private:
     bool isIntialized{false};

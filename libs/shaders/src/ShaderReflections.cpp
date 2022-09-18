@@ -203,6 +203,11 @@ public:
         }
     }
 
+    ShaderStageInfo getShaderStageInfo(MemoryBuffer program)
+    {
+        return ShaderStageInfo{program, entryPointName, static_cast<VkShaderStageFlagBits>(stage)};
+    }
+
 private:
     CompilerGLSL& compiler;
     std::string entryPointName;
@@ -219,28 +224,14 @@ ShaderReflections::ShaderReflections(std::vector<MemoryBuffer>&& programs)
     {
         compile(program);
     }
-    // dump resoult
     log_inf("ubos: {}", ubos);
     log_inf("pushConstants: {}", pushConstants);
     log_inf("samplers: {}", samplers);
     log_inf("vertexAttribs: {}", vertexAttributes);
     log_inf("outputNames: {}", outputNames);
-    // auto& device = context.device;
-    // auto& allocator = context.ire.allocator;
-    // VkSemaphoreCreateInfo semaphoreInfo = {};
-    // semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    // if (vkCreateSemaphore(device, &semaphoreInfo, allocator, &imageAvailableSemaphore) != VK_SUCCESS ||
-    //     vkCreateSemaphore(device, &semaphoreInfo, allocator, &renderFinishedSemaphore) != VK_SUCCESS)
-    // {
-    // 	throw std::runtime_error("failed to create semaphores!");
-    // }
 }
 
-ShaderReflections::~ShaderReflections()
-{
-    // context.vkDestroy(renderFinishedSemaphore);
-    // context.vkDestroy(imageAvailableSemaphore);
-}
+ShaderReflections::~ShaderReflections() {}
 
 void ShaderReflections::compile(MemoryBuffer program)
 {
@@ -251,12 +242,6 @@ void ShaderReflections::compile(MemoryBuffer program)
     sri.parseSamplers(samplers);
     sri.parseVertexAttribs(vertexAttributes);
     sri.parseOutputNames(outputNames);
-
-    // auto constants = compiler.get_specialization_constants();
-    // auto resources = compiler.get_shader_resources();
-    // auto pi = createProgramInfo(compiler);
-    // parseUniformBuffers(compiler);
-    // auto entry_points = compiled.get_entry_points_and_stages();
-    // auto &entry_point = entry_points[0];
+    shaderStageInfos.push_back(sri.getShaderStageInfo(program));
 }
 } // namespace renderingEngine

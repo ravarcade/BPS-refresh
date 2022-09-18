@@ -13,9 +13,9 @@ constexpr unsigned VULKAN_NUM_DESCRIPTOR_SETS = 4;
 constexpr unsigned VULKAN_NUM_BINDINGS = 16;
 
 struct Context;
-struct ShaderProgramInfo
+struct ShaderStageInfo
 {
-    // BAMS::CResRawData resource;
+    MemoryBuffer compiledShaderStage;
     std::string entryPointName;
     VkShaderStageFlagBits stage;
 };
@@ -36,9 +36,11 @@ struct ResourceLayout
 
 struct ShaderReflections
 {
+    ShaderReflections(){};
     ShaderReflections(std::vector<MemoryBuffer>&&);
     ~ShaderReflections();
 
+    void compile(MemoryBuffer);
     // void reset(VkCommandBuffer);
     // void begin(VkCommandBuffer);
     // void end(VkCommandBuffer);
@@ -47,10 +49,8 @@ struct ShaderReflections
     // Context& context;
     // VkQueryPool queryPool = VK_NULL_HANDLE;
     // std::vector<uint64_t> stats;
-private:
-    void compile(MemoryBuffer);
-
-    std::vector<ShaderProgramInfo> programs;
+    // private:
+    std::vector<ShaderStageInfo> shaderStageInfos;
     std::vector<SvUbo> ubos;
     std::vector<SvPushConst> pushConstants;
     std::vector<SvSampler> samplers;

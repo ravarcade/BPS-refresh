@@ -14,21 +14,22 @@ struct Image;
 
 namespace renderingEngine
 {
+struct CommandBuffers;
 struct CommandPools;
+struct DescriptorSetManager;
+struct FrameBufferAttachment;
 struct GlfwImpl;
+struct Gui;
 struct IRenderingEngine;
 struct LogicalDevice;
 struct PhysicalDevice;
-struct Semaphores;
-struct Surface;
-struct RenderPass;
-struct SwapChain;
-struct FrameBufferAttachment;
-struct SharedUniformBufferObject;
-struct CommandBuffers;
 struct PipelineStatistic;
-struct DescriptorSetManager;
-struct Gui;
+struct RenderPass;
+struct Semaphores;
+struct ShaderProgram;
+struct SharedUniformBufferObject;
+struct Surface;
+struct SwapChain;
 struct Texture;
 
 struct Context
@@ -108,6 +109,7 @@ struct Context
     std::unique_ptr<CommandBuffers> commandBuffers;
     std::unique_ptr<PipelineStatistic> pipelineStatistic;
     std::unique_ptr<DescriptorSetManager> descriptorSetManager;
+    std::unique_ptr<ShaderProgram> shaderProgram; // for now, just one for testing
     std::unique_ptr<Gui> ui;
 
     VkBuffer stagingBuffer;

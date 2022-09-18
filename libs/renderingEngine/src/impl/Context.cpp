@@ -12,6 +12,7 @@
 #include "QueueFamilyIndices.hpp"
 #include "RenderPass.hpp"
 #include "Semaphores.hpp"
+#include "ShaderProgram.hpp"
 #include "SharedUniformBufferObject.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
