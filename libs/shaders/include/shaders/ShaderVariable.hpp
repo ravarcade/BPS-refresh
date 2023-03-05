@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "common/MemoryBuffer.hpp"
+#include <fmt/ostream.h>
 
 namespace renderingEngine
 {
@@ -72,3 +73,8 @@ struct SvSampler
 
 std::ostream& operator<<(std::ostream& out, const ShaderVariable& val);
 } // namespace renderingEngine
+
+template <> struct fmt::formatter<renderingEngine::SvUbo> : ostream_formatter {};
+template <> struct fmt::formatter<renderingEngine::SvPushConst> : ostream_formatter {};
+template <> struct fmt::formatter<renderingEngine::ShaderVariable> : ostream_formatter {};
+template <> struct fmt::formatter<renderingEngine::SvSampler> : ostream_formatter {};

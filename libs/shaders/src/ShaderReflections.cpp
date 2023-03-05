@@ -51,7 +51,8 @@ uint32_t executionModelToStage(spv::ExecutionModel em)
 class ShaderReflectionsImpl
 {
 public:
-    ShaderReflectionsImpl(CompilerGLSL& compiler) : compiler{compiler}
+    ShaderReflectionsImpl(CompilerGLSL& compiler, ResourceLayout resourceLayout)
+        : compiler{compiler}, resourceLayout{resourceLayout}
     {
         auto entry_points = compiler.get_entry_points_and_stages();
         auto& entry_point = entry_points[0];
@@ -64,7 +65,14 @@ public:
     {
         for (auto& uniform_buffer : resources.uniform_buffers)
         {
-            ubos.push_back(parseUniformBuffer(uniform_buffer));
+            auto svUbo = parseUniformBuffer(uniform_buffer);
+            ubos.push_back(svUbo);
+
+            const SPIRType &type = compiler.get_type(uniform_buffer.type_id);
+			uint32_t descriptorCount = type.array.size() == 1 ? type.array[0] : 1;
+            resourceLayout.descriptorSets[svUbo.set].uniform_buffer_mask |= 1u << svUbo.binding;
+            resourceLayout.descriptorSets[svUbo.set].descriptorCount[svUbo.binding] = descriptorCount;
+            resourceLayout.descriptorSets[svUbo.set].stages[svUbo.binding] |= svUbo.stage;
         }
     }
 
@@ -156,6 +164,24 @@ public:
         }
     }
 
+    static VertexAttributeBase getVABase(const VertexAttribute& val)
+    {
+        return std::visit([](const auto& va) -> VertexAttributeBase { return va; }, val);
+    }
+
+    void sortVertexAttributes(std::vector<VertexAttribute>& vertexAttribs)
+    {
+        std::sort(
+            vertexAttribs.begin(),
+            vertexAttribs.end(),
+            [](const auto& a, const auto& b)
+            {
+                auto _a = getVABase(a);
+                auto _b = getVABase(b);
+                return _a.binding == _b.binding ? _a.location < _b.location : _a.binding < _b.binding;
+            });
+    }
+
     void parseVertexAttribs(std::vector<VertexAttribute>& vertexAttribs)
     {
         if (stage == VK_SHADER_STAGE_VERTEX_BIT)
@@ -165,6 +191,7 @@ public:
                 vertexAttribs.push_back(getVertexAttrib(attrib));
             }
         }
+        sortVertexAttributes(vertexAttribs);
     }
 
     template <typename T>
@@ -210,6 +237,7 @@ public:
 
 private:
     CompilerGLSL& compiler;
+    ResourceLayout& resourceLayout;
     std::string entryPointName;
     uint32_t stage;
     ShaderResources resources;
@@ -236,7 +264,7 @@ ShaderReflections::~ShaderReflections() {}
 void ShaderReflections::compile(MemoryBuffer program)
 {
     CompilerGLSL compiler = ::compile(program);
-    ShaderReflectionsImpl sri{compiler};
+    ShaderReflectionsImpl sri{compiler, resourceLayout};
     sri.parseUniformBuffers(ubos);
     sri.parsePushConstants(pushConstants);
     sri.parseSamplers(samplers);

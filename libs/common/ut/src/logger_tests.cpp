@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "common/Logger.hpp"
+#include <fmt/ostream.h>
 
 namespace
 {
@@ -21,6 +22,7 @@ const std::vector<std::string> expected_vals = {"val one", "val two"};
 const std::vector<std::string_view> expected_keys = {"key one", "key two"};
 const std::map<std::string_view, ComplicatedStruct> map = {{"key one", {"val one"}}, {"key two", {"val two"}}};
 } // namespace
+template <> struct fmt::formatter<ComplicatedStruct> : ostream_formatter {};
 
 TEST(logger, printVals)
 {

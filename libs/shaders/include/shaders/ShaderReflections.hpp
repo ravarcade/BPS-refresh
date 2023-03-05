@@ -6,6 +6,7 @@
 #include "ShaderVariable.hpp"
 #include "VertexAttribute.hpp"
 #include "common/MemoryBuffer.hpp"
+#include <fmt/ostream.h>
 
 namespace renderingEngine
 {
@@ -59,3 +60,5 @@ struct ShaderReflections
     ResourceLayout resourceLayout;
 };
 } // namespace renderingEngine
+
+template <> struct fmt::formatter<renderingEngine::ShaderReflections> : ostream_formatter {};

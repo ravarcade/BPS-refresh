@@ -67,7 +67,7 @@ const auto shaderProgram = sourceCode(R"(
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outViewRay;
 
-// ### Params UBO.  Sared with deffered.vert.glsl 
+// ### Params UBO.  Shared with deffered.vert.glsl 
 struct Light {
 	vec4 position;
 	vec3 color;
@@ -114,6 +114,6 @@ TEST(shaderReflections, compileAndParseVertexShader)
 TEST(shaderReflections, compileAndParseImguiVertexShader)
 {
     ShaderCompiler sut;
-    ShaderReflections sr({sut.compile(imgui_vert, Shader::vertex), sut.compile(imgui_frag, Shader::fragment)});
+    ShaderReflections sr({sut.compile(imgui_vert, ShaderStage::vertex), sut.compile(imgui_frag, ShaderStage::fragment)});
     EXPECT_TRUE(true);
 }

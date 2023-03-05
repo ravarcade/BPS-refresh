@@ -53,7 +53,7 @@ void log(std::string_view file, int line, fmt::format_string<Args...> fmt, Args&
             "{:%F %H:%M:%S}.{:06} [{}]/{} {}:{:d}: {}\n",
             now,
             (std::chrono::round<std::chrono::microseconds>(now).time_since_epoch() % std::chrono::seconds(1)).count(),
-            std::this_thread::get_id(),
+            fmt::streamed(std::this_thread::get_id()),
             logLevel,
             removePath(file),
             line,

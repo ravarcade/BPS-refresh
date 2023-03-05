@@ -26,20 +26,16 @@ target_link_libraries(${MODULE_NAME}
     PUBLIC
         # bps::config              # exposed as public, so ut don't need to add it in target_link_libraries
         bps::common
-
-    PRIVATE
-        # SDL2::SDL2_image
-        # glfw
+        
+   PRIVATE
         glm::glm
         imgui::imgui
         Vulkan::Vulkan
         spirv-cross-core
         spirv-cross-glsl
         spirv-cross-reflect
-        # HLSL
-        SPIRV
-        glslang
-        # OGLCompiler
+        glslang::glslang
+        glslang::SPIRV
     )
 
 add_subdirectory(ut)

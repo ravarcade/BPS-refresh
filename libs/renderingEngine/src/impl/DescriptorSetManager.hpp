@@ -5,17 +5,19 @@
 namespace renderingEngine
 {
 struct Context;
+struct ShaderReflections;
+using DescriptorSetLayouts = std::vector<VkDescriptorSetLayout>;
+using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
+
 struct DescriptorSetManager
 {
     DescriptorSetManager(Context&);
     ~DescriptorSetManager();
 
     Context& context;
-    VkDescriptorSet CreateDescriptorSets(
-        std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
-        std::vector<VkDescriptorPoolSize>& descriptorRequirments);
-    // std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayouts(CShadersReflections::ResourceLayout& layout);
-    // std::vector<VkDescriptorPoolSize> CreateDescriptorRequirments(CShadersReflections::ResourceLayout& layout);
+    VkDescriptorSet createDescriptorSets(DescriptorSetLayouts&, DescriptorPoolSizes&);
+    DescriptorSetLayouts createDescriptorSetLayouts(ShaderReflections&);
+    DescriptorPoolSizes createDescriptorRequirments(ShaderReflections&);
 
 private:
     void createNewDescriptorPool();

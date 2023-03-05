@@ -3,6 +3,7 @@
 #include <string>
 #include <valarray>
 #include <variant>
+#include "common/Logger.hpp"
 
 struct iProperties
 {
@@ -88,6 +89,7 @@ struct noise
 int main(int, char**)
 {
     tint ti{10};
+    log_inf("test logger!!!");
     fmt::print("is in range = {} ({})\n", ti.isInRange(), ti.getName());
     ti.value = {20};
 

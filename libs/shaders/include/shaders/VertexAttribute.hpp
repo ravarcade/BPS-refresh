@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "common/MemoryBuffer.hpp"
+#include <fmt/ostream.h>
 
 namespace renderingEngine
 {
@@ -27,3 +28,5 @@ using VertexAttribute = std::variant<VaFloat, VaInt>;
 
 std::ostream& operator<<(std::ostream& out, const VertexAttribute& val);
 } // namespace renderingEngine
+
+template <> struct fmt::formatter<renderingEngine::VertexAttribute> : ostream_formatter {};

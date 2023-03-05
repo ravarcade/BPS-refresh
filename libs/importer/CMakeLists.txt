@@ -19,7 +19,7 @@ target_link_libraries(${MODULE_NAME}
 
     PRIVATE
         SDL2::SDL2
-        SDL2::SDL2_image
+        SDL2_image::SDL2_image
     )
 
 add_subdirectory(ut)

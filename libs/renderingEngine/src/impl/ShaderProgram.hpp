@@ -32,9 +32,13 @@ struct ShaderProgram
     // VkQueryPool queryPool = VK_NULL_HANDLE;
 	// std::vector<uint64_t> stats;
 private:
-    VkPipeline pipeline;
-    Type shaderProgramType;
     VkPipelineVertexInputStateCreateInfo getVertexInputInfo();
+    VkPipelineLayout getPipelineLayout();
+
+	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+    VkPipeline pipeline = VK_NULL_HANDLE;
+    Type shaderProgramType;
+    std::vector<VkDescriptorSetLayout> descriptorSetLayout;
     std::vector<VkVertexInputBindingDescription> bindingDescription;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 };
