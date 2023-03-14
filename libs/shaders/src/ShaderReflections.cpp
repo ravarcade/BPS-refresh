@@ -152,14 +152,14 @@ public:
             auto binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
             auto name = compiler.get_name(resource.id);
             const SPIRType& type = compiler.get_type(resource.type_id);
-            // uint32_t descriptorCount = type.array.size() == 1 ? type.array[0] : 1;
             assert(type.basetype == SPIRType::SampledImage);
             if (type.basetype == SPIRType::SampledImage)
             {
+                uint32_t descriptorCount = type.array.size() == 1 ? type.array[0] : 1;
                 samplers.push_back({set, binding, name, static_cast<uint32_t>(type.image.dim), stage});
-                // m_layout.descriptorSets[set].sampled_image_mask |= 1u << binding;
-                // m_layout.descriptorSets[set].descriptorCount[binding] = descriptorCount;
-                // m_layout.descriptorSets[set].stages[binding] |= prg.stage;
+                resourceLayout.descriptorSets[set].sampled_image_mask |= 1u << binding;
+                resourceLayout.descriptorSets[set].descriptorCount[binding] = descriptorCount;
+                resourceLayout.descriptorSets[set].stages[binding] |= stage;
             }
         }
     }

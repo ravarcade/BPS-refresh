@@ -2,21 +2,22 @@
 #include <memory>
 #include <vector>
 #include <vulkan/vulkan.h>
+#include "common/Logger.hpp"
 
 namespace renderingEngine
 {
 struct Context;
 struct ShaderReflections;
 
+enum class ShaderProgramType
+{
+    forward,
+    deferred,
+    deferred_resolve
+};
+
 struct ShaderProgram
 {
-    enum class Type
-    {
-        forward,
-        deferred,
-        deferred_resolve
-    };
-
     ShaderProgram(Context&);
     ~ShaderProgram();
 
@@ -37,9 +38,11 @@ private:
 
 	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
     VkPipeline pipeline = VK_NULL_HANDLE;
-    Type shaderProgramType;
+    ShaderProgramType shaderProgramType;
     std::vector<VkDescriptorSetLayout> descriptorSetLayout;
     std::vector<VkVertexInputBindingDescription> bindingDescription;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 };
 } // namespace renderingEngine
+
+FMT_TOSTRING(renderingEngine::ShaderProgramType);

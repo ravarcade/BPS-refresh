@@ -1,6 +1,7 @@
 #include "DescriptorSetManager.hpp"
 #include "Context.hpp"
 #include "PhysicalDevice.hpp"
+#include "shaders/ShaderReflections.hpp"
 
 namespace
 {
@@ -148,71 +149,75 @@ void DescriptorSetManager::createNewDescriptorPool()
     }
 }
 
-
-DescriptorSetLayouts DescriptorSetManager::createDescriptorSetLayouts(ShaderReflections& /*shaderReflections*/)
+DescriptorSetLayouts DescriptorSetManager::createDescriptorSetLayouts(ShaderReflections& shaderReflections)
 {
-	DescriptorSetLayouts dsl;
+    DescriptorSetLayouts dsl;
+    auto layout = shaderReflections.resourceLayout;
 
-	// // find last set
-	// uint32_t lastSet = 0, i = 0;
-	// for (auto &set : layout.descriptorSets)
-	// {
-	// 	if (set.uniform_buffer_mask ||
-	// 		set.sampled_image_mask)
-	// 		lastSet = i;
-	// 	++i;
-	// }
+    // find last set
+    uint32_t lastSet = 0, i = 0;
+    for (auto& set : layout.descriptorSets)
+    {
+        if (set.uniform_buffer_mask || set.sampled_image_mask) lastSet = i;
+        ++i;
+    }
 
-	// // create all needed DescriptorSetsLayouts and add it to dsl
-	// for (uint32_t setNo = 0; setNo <= lastSet; ++setNo)
-	// {
-	// 	auto &set = layout.descriptorSets[setNo];
-	// 	std::vector<VkDescriptorSetLayoutBinding> bindings;
+    // create all needed DescriptorSetsLayouts and add it to dsl
+    for (uint32_t setNo = 0; setNo <= lastSet; ++setNo)
+    {
+        auto& set = layout.descriptorSets[setNo];
+        std::vector<VkDescriptorSetLayoutBinding> bindings;
 
-	// 	if (set.uniform_buffer_mask)
-	// 	{
-	// 		for (unsigned i = 0; i < VULKAN_NUM_BINDINGS; i++)
-	// 		{
-	// 			uint32_t bitMask = 1u << i;
-	// 			uint32_t descriptorCount = set.descriptorCount[i];
-	// 			uint32_t stages = set.stages[i];
+        if (set.uniform_buffer_mask)
+        {
+            for (unsigned i = 0; i < VULKAN_NUM_BINDINGS; ++i)
+            {
+                uint32_t bitMask = 1u << i;
+                uint32_t descriptorCount = set.descriptorCount[i];
+                uint32_t stages = set.stages[i];
 
-	// 			if (set.uniform_buffer_mask & bitMask) {
-	// 				bindings.push_back({ i, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount, stages, nullptr });
-	// 			}
-	// 		}
-	// 	}
+                if (set.uniform_buffer_mask & bitMask)
+                {
+                    bindings.push_back({i, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount, stages, nullptr});
+                }
+            }
+        }
 
-	// 	if (set.sampled_image_mask)
-	// 	{
-	// 		for (unsigned i = 0; i < VULKAN_NUM_BINDINGS; i++)
-	// 		{
-	// 			uint32_t bitMask = 1u << i;
-	// 			uint32_t descriptorCount = set.descriptorCount[i];
-	// 			uint32_t stages = set.stages[i];
+        if (set.sampled_image_mask)
+        {
+            for (unsigned i = 0; i < VULKAN_NUM_BINDINGS; i++)
+            {
+                uint32_t bitMask = 1u << i;
+                uint32_t descriptorCount = set.descriptorCount[i];
+                uint32_t stages = set.stages[i];
 
-	// 			if (set.sampled_image_mask & bitMask) {
-	// 				bindings.push_back({ i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount, stages, nullptr });
-	// 			}
-	// 		}
+                if (set.sampled_image_mask & bitMask)
+                {
+                    bindings.push_back(
+                        {i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount, stages, nullptr});
+                }
+            }
+        }
 
-	// 	}
+        if (bindings.size())
+        {
+            VkDescriptorSetLayoutCreateInfo layoutInfo{
+                VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                nullptr,
+                0,
+                static_cast<uint32_t>(bindings.size()),
+                bindings.data()};
 
-	// 	if (bindings.size())
-	// 	{
-	// 		VkDescriptorSetLayoutCreateInfo layoutInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-	// 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	// 		layoutInfo.pBindings = bindings.data();
+            VkDescriptorSetLayout descriptorSetLayout;
 
-	// 		VkDescriptorSetLayout descriptorSetLayout;
+            if (vkCreateDescriptorSetLayout(context.device, &layoutInfo, context.ire.allocator, &descriptorSetLayout) !=
+                VK_SUCCESS)
+                throw std::runtime_error("failed to create descriptor set layout!");
 
-	// 		if (vkCreateDescriptorSetLayout(vk->device, &layoutInfo, vk->allocator, &descriptorSetLayout) != VK_SUCCESS)
-	// 			throw std::runtime_error("failed to create descriptor set layout!");
-
-	// 		dsl.push_back(descriptorSetLayout);
-	// 	}
-	// }
-	return dsl;
+            dsl.push_back(descriptorSetLayout);
+        }
+    }
+    return dsl;
 }
 
 DescriptorPoolSizes DescriptorSetManager::createDescriptorRequirments(ShaderReflections& /*shaderReflections*/)

@@ -61,6 +61,14 @@ void log(std::string_view file, int line, fmt::format_string<Args...> fmt, Args&
     }
 }
 
+#define FMT_TOSTRING(T)                                    \
+    template <>                                            \
+    struct fmt::formatter<T> : fmt::formatter<string_view> \
+    {                                                      \
+        template <typename FormatContext>                  \
+        auto format(T, FormatContext&);                    \
+    }
+
 #define log_trace(...) log<LogLevel::TRACE>(__FILE__, __LINE__, __VA_ARGS__)
 #define log_dbg(...) log<LogLevel::DEBUG>(__FILE__, __LINE__, __VA_ARGS__)
 #define log_inf(...) log<LogLevel::INFO>(__FILE__, __LINE__, __VA_ARGS__)

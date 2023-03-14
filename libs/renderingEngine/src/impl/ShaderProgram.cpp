@@ -12,6 +12,23 @@
 #include "DescriptorSetManager.hpp"
 #include "tools/writeFile.hpp"
 
+template <typename FormatContext>
+auto fmt::formatter<renderingEngine::ShaderProgramType>::format(
+    renderingEngine::ShaderProgramType value,
+    FormatContext& ctx)
+{
+    switch (value)
+    {
+        case renderingEngine::ShaderProgramType::forward:
+            return formatter<string_view>::format("forward", ctx);
+        case renderingEngine::ShaderProgramType::deferred:
+            return formatter<string_view>::format("deferred", ctx);
+        case renderingEngine::ShaderProgramType::deferred_resolve:
+            return formatter<string_view>::format("deferred_resolve", ctx);
+    }
+	return formatter<string_view>::format("[unknown]", ctx);
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 namespace std
@@ -39,14 +56,16 @@ const auto test_vert = sourceCode(R"(
 #version 450
 
 layout (location = 0) in vec2 inPos;
-layout (location = 1) in vec4 inColor;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec4 inColor;
 
 layout (push_constant) uniform PushConstants {
 	vec2 scale;
 	vec2 translate;
 } pushConstants;
 
-layout (location = 0) out vec4 outColor;
+layout (location = 0) out vec2 outUV; 
+layout (location = 1) out vec4 outColor;
 
 out gl_PerVertex 
 {
@@ -55,6 +74,7 @@ out gl_PerVertex
 
 void main() 
 {
+	outUV = inUV;
 	outColor = inColor;
 	gl_Position = vec4(inPos * pushConstants.scale + pushConstants.translate, 0.0, 1.0);
 }
@@ -63,12 +83,16 @@ void main()
 const auto test_frag = sourceCode(R"(
 #version 450
 
-layout (location = 0) in vec4 outColor;
-layout (location = 0) out vec4 outGuiColor;
+layout (binding = 0) uniform sampler2D fontSampler;
+
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec4 inColor;
+
+layout (location = 0) out vec4 outColor;
 
 void main() 
 {
-	outGuiColor = outColor;
+	outColor = inColor * texture(fontSampler, inUV);
 }
 )");
 
@@ -83,14 +107,14 @@ std::unique_ptr<ShaderReflections> createReflections(const std::vector<std::vect
     return shaderReflections;
 }
 
-ShaderProgram::Type getShaderProgramType(std::unique_ptr<ShaderReflections>& shaderReflections)
+ShaderProgramType getShaderProgramType(std::unique_ptr<ShaderReflections>& shaderReflections)
 {
     if (shaderReflections->outputNames.size() == 1 && shaderReflections->outputNames[0] == "outColor")
     {
-        return shaderReflections->vertexAttributes.size() == 0 ? ShaderProgram::Type::deferred_resolve
-                                                               : ShaderProgram::Type::forward;
+        return shaderReflections->vertexAttributes.size() == 0 ? ShaderProgramType::deferred_resolve
+                                                               : ShaderProgramType::forward;
     }
-    return ShaderProgram::Type::deferred;
+    return ShaderProgramType::deferred;
 }
 
 std::vector<VkPipelineShaderStageCreateInfo> createShaderStages(
@@ -127,6 +151,8 @@ VertexAttributeBase getVABase(const VertexAttribute& val)
 typedef std::pair<std::string, uint32_t> stringSizePair;
 
 std::unordered_map<stringSizePair, VkFormat> formatSelector = {
+    {{"inUV", 2}, VK_FORMAT_R32G32_SFLOAT}, // maybe R16G16_UNORM? 
+    {{"inUV", 3}, VK_FORMAT_R32G32B32_SFLOAT},
     {{"inPos", 2}, VK_FORMAT_R32G32_SFLOAT},
     {{"inPos", 3}, VK_FORMAT_R32G32B32_SFLOAT},
     {{"inColor", 3}, VK_FORMAT_R8G8B8_UNORM},
@@ -316,13 +342,13 @@ VkPipelineDynamicStateCreateInfo getDynamicState()
 	return dynamicState;
 }
 
-VkRenderPass getRenderPass(Context& context, ShaderProgram::Type shaderProgramType)
+VkRenderPass getRenderPass(Context& context, ShaderProgramType shaderProgramType)
 {
     switch(shaderProgramType)
     {
-        case ShaderProgram::Type::forward: return context.forwardRenderPass->renderPass;
-        case ShaderProgram::Type::deferred: return context.derreferedRenderPass->renderPass;
-        case ShaderProgram::Type::deferred_resolve: return context.derreferedRenderPass->renderPass; // bad choice!
+        case ShaderProgramType::forward: return context.forwardRenderPass->renderPass;
+        case ShaderProgramType::deferred: return context.derreferedRenderPass->renderPass;
+        case ShaderProgramType::deferred_resolve: return context.derreferedRenderPass->renderPass; // bad choice!
     }
     return context.forwardRenderPass->renderPass;
 }
@@ -353,6 +379,7 @@ void ShaderProgram::createGraphicsPipeline()
     context.vkDestroy(pipeline);
     shaderReflections = std::move(createReflections(compiledShaders));
     shaderProgramType = getShaderProgramType(shaderReflections);
+	log_dbg("ShaderProgramType: {}", shaderProgramType);
     auto shaderStages = createShaderStages(context, *shaderReflections);
     auto vertexInputInfo = getVertexInputInfo();
     auto inputAssembly = getInputAssembly();
@@ -387,7 +414,7 @@ void ShaderProgram::createGraphicsPipeline()
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
     
-#ifdef _DEBUG
+ #ifdef _DEBUG
 	for (uint32_t i = 0; i < pipelineInfo.pVertexInputState->vertexAttributeDescriptionCount; ++i)
 	{
 		if (!vk->IsBufferFeatureSupported(pipelineInfo.pVertexInputState->pVertexAttributeDescriptions[i].format, VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT))
@@ -395,7 +422,7 @@ void ShaderProgram::createGraphicsPipeline()
 			throw std::runtime_error("Failed to create graphics pipeline! Attrib vertex fromat is not supported.");
 		}
 	}
-#endif
+ #endif
 
 	if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, context.ire.allocator, &pipeline) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
