@@ -1,10 +1,12 @@
 #include "shaders/ShaderReflections.hpp"
 #include <ranges>
+#include <map>
 #include "ShaderVariableBuilder.hpp"
 #include "common/Logger.hpp"
 #include "common/MemoryBuffer.hpp"
 #include "shaders/ShaderVariable.hpp"
 #include "spirv_cross/spirv_glsl.hpp"
+#include "tools/to_vector.hpp"
 
 namespace
 {
@@ -51,7 +53,7 @@ uint32_t executionModelToStage(spv::ExecutionModel em)
 class ShaderReflectionsImpl
 {
 public:
-    ShaderReflectionsImpl(CompilerGLSL& compiler, ResourceLayout resourceLayout)
+    ShaderReflectionsImpl(CompilerGLSL& compiler, ResourceLayout& resourceLayout)
         : compiler{compiler}, resourceLayout{resourceLayout}
     {
         auto entry_points = compiler.get_entry_points_and_stages();
@@ -104,6 +106,13 @@ public:
         return sv;
     }
 
+    SvPushConst parsePushConstant(Resource& res)
+    {
+        auto sv = createSv<SvPushConst>(res);
+        sv.stage = stage;
+        return sv;
+    }
+
     std::vector<ShaderVariable> getStructMembers(const SPIRType& type)
     {
         std::vector<ShaderVariable> members;
@@ -140,7 +149,7 @@ public:
     {
         for (auto& pushConst : resources.push_constant_buffers)
         {
-            pushConstants.push_back(createSv<SvPushConst>(pushConst));
+            pushConstants.push_back(parsePushConstant(pushConst));
         }
     }
 
@@ -242,6 +251,57 @@ private:
     uint32_t stage;
     ShaderResources resources;
 };
+
+std::vector<VkPushConstantRange> mergePushConstants(const std::vector<SvPushConst>& pushConstants)
+{
+    std::map<std::pair<uint32_t, uint32_t>, VkPushConstantRange> mapPushConstantRangesInSets;
+    for (const auto& svPushConst : pushConstants)
+    {
+        std::pair<uint32_t, uint32_t> key = {svPushConst.set, svPushConst.binding};
+        auto it = mapPushConstantRangesInSets.find(key);
+        if (it == mapPushConstantRangesInSets.end())
+        {
+            mapPushConstantRangesInSets.insert({key, {svPushConst.stage, svPushConst.offset, svPushConst.size}});
+        }
+        else
+        {
+            auto& pc = it->second;
+            auto offset = std::min(pc.offset, svPushConst.offset);
+            auto size = std::max(pc.offset + pc.size, svPushConst.offset + svPushConst.size) - offset;
+            pc.offset = offset;
+            pc.size = size;
+            pc.stageFlags |= svPushConst.stage;
+        }
+    }
+
+    return tools::to_vector(mapPushConstantRangesInSets, [](const auto& it) { return it.second; });
+}
+
+template <typename T>
+bool isEmpty(const T& arr)
+{
+    return std::all_of(std::begin(arr), std::end(arr), [](const auto& item) { return item == 0; });
+}
+
+bool isEmpty(const ResourceLayout::DescriptorSetLayout& in)
+{
+    return in.uniform_buffer_mask == 0 and in.sampled_image_mask == 0 and isEmpty(in.descriptorCount) and
+        isEmpty(in.stages);
+}
+
+template<typename T>
+auto asMap(const T& arr)
+{
+    int i = 0;
+    std::map<int, int> map;
+    std::ranges::for_each(arr, [&i, &map](const auto it) mutable {
+        if (it != 0)
+        {
+            map.insert(std::make_pair(i++, it));
+        }
+    });
+    return map;
+}
 }; // namespace
 
 namespace renderingEngine
@@ -252,11 +312,7 @@ ShaderReflections::ShaderReflections(std::vector<MemoryBuffer>&& programs)
     {
         compile(program);
     }
-    log_inf("ubos: {}", ubos);
-    log_inf("pushConstants: {}", pushConstants);
-    log_inf("samplers: {}", samplers);
-    log_inf("vertexAttribs: {}", vertexAttributes);
-    log_inf("outputNames: {}", outputNames);
+    parseReqults();
 }
 
 ShaderReflections::~ShaderReflections() {}
@@ -271,5 +327,30 @@ void ShaderReflections::compile(MemoryBuffer program)
     sri.parseVertexAttribs(vertexAttributes);
     sri.parseOutputNames(outputNames);
     shaderStageInfos.push_back(sri.getShaderStageInfo(program));
+}
+
+void ShaderReflections::parseReqults()
+{
+    resourceLayout.pushConstants = mergePushConstants(pushConstants);
+    log_inf("ubos: {}", ubos);
+    log_inf("pushConstants: {}", pushConstants);
+    log_inf("samplers: {}", samplers);
+    log_inf("vertexAttribs: {}", vertexAttributes);
+    log_inf("outputNames: {}", outputNames);
+    log_inf("resourceLayout: {}", resourceLayout);
+}
+
+std::ostream& operator<<(std::ostream& out, const ResourceLayout::DescriptorSetLayout& in)
+{
+    if (isEmpty(in))
+    {
+        return out << "[empty]";
+    }
+    return out << fmt::format("[uniform_buffer_mask: {}, sampled_image_mask: {}, descriptorCount: {}, stages: {}]", in.uniform_buffer_mask, in.sampled_image_mask, asMap(in.descriptorCount), asMap(in.stages));
+}
+
+std::ostream& operator<<(std::ostream& out, const ResourceLayout& in)
+{
+    return out << fmt::format("descriptorSets: {}", in.descriptorSets);
 }
 } // namespace renderingEngine

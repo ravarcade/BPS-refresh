@@ -50,6 +50,7 @@ struct SvPushConst
 {
     uint32_t set{0};
     uint32_t binding{0};
+    uint32_t stage{VK_SHADER_STAGE_VERTEX_BIT};
     std::string name;
     std::string rootTypeName;
     uint32_t offset{0};

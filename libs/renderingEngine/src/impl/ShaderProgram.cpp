@@ -96,17 +96,6 @@ void main()
 }
 )");
 
-std::unique_ptr<ShaderReflections> createReflections(const std::vector<std::vector<uint8_t>> &compiledShaders)
-{
-    std::unique_ptr<ShaderReflections> shaderReflections = std::make_unique<ShaderReflections>();
-    for (const auto& shader : compiledShaders)
-	{
-        shaderReflections->compile(shader);
-	}
-
-    return shaderReflections;
-}
-
 ShaderProgramType getShaderProgramType(std::unique_ptr<ShaderReflections>& shaderReflections)
 {
     if (shaderReflections->outputNames.size() == 1 && shaderReflections->outputNames[0] == "outColor")
@@ -377,7 +366,7 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::createGraphicsPipeline()
 {
     context.vkDestroy(pipeline);
-    shaderReflections = std::move(createReflections(compiledShaders));
+    shaderReflections = std::make_unique<ShaderReflections>(compiledShaders);
     shaderProgramType = getShaderProgramType(shaderReflections);
 	log_dbg("ShaderProgramType: {}", shaderProgramType);
     auto shaderStages = createShaderStages(context, *shaderReflections);
@@ -460,23 +449,28 @@ VkPipelineVertexInputStateCreateInfo ShaderProgram::getVertexInputInfo()
 VkPipelineLayout ShaderProgram::getPipelineLayout()
 {
     if (pipelineLayout)
+    {
         return pipelineLayout;
-    auto& dsm = context.descriptorSetManager;
-	
-	// auto layout = shaderReflections.GetLayout();
-	descriptorSetLayout = dsm->createDescriptorSetLayouts(*shaderReflections);
-	// auto descriptorsRequirments = dsm->createDescriptorRequirments(*shaderReflections);
+    }
 
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayout.size());
-	pipelineLayoutInfo.pSetLayouts = descriptorSetLayout.data();
-	// pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(layout.pushConstants.size());
-	// pipelineLayoutInfo.pPushConstantRanges = layout.pushConstants.data();
+    // auto layout = shaderReflections.GetLayout();
+    const auto& shaderResourceLayout = shaderReflections->resourceLayout;
+    descriptorSetLayout = context.descriptorSetManager->createDescriptorSetLayouts(*shaderReflections);
+    // auto descriptorsRequirments = dsm->createDescriptorRequirments(*shaderReflections);
 
-	if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, context.ire.allocator, &pipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create pipeline layout!");
-	}
-	return pipelineLayout;
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayout.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayout.data();
+
+    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(shaderResourceLayout.pushConstants.size());
+    pipelineLayoutInfo.pPushConstantRanges = shaderResourceLayout.pushConstants.data();
+
+    if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, context.ire.allocator, &pipelineLayout) !=
+        VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+    return pipelineLayout;
 }
 } // namespace renderingEngine
 #pragma GCC diagnostic pop

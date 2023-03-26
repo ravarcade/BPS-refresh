@@ -151,7 +151,7 @@ void DescriptorSetManager::createNewDescriptorPool()
 
 DescriptorSetLayouts DescriptorSetManager::createDescriptorSetLayouts(ShaderReflections& shaderReflections)
 {
-    DescriptorSetLayouts dsl;
+    DescriptorSetLayouts descriptorSetLayouts;
     auto layout = shaderReflections.resourceLayout;
 
     // find last set
@@ -162,7 +162,7 @@ DescriptorSetLayouts DescriptorSetManager::createDescriptorSetLayouts(ShaderRefl
         ++i;
     }
 
-    // create all needed DescriptorSetsLayouts and add it to dsl
+    // create all needed DescriptorSetsLayouts and add it to descriptorSetLayouts
     for (uint32_t setNo = 0; setNo <= lastSet; ++setNo)
     {
         auto& set = layout.descriptorSets[setNo];
@@ -214,10 +214,10 @@ DescriptorSetLayouts DescriptorSetManager::createDescriptorSetLayouts(ShaderRefl
                 VK_SUCCESS)
                 throw std::runtime_error("failed to create descriptor set layout!");
 
-            dsl.push_back(descriptorSetLayout);
+            descriptorSetLayouts.push_back(descriptorSetLayout);
         }
     }
-    return dsl;
+    return descriptorSetLayouts;
 }
 
 DescriptorPoolSizes DescriptorSetManager::createDescriptorRequirments(ShaderReflections& /*shaderReflections*/)

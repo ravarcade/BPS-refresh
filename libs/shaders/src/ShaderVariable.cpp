@@ -54,10 +54,11 @@ template <>
 void toString(std::ostream& out, const SvPushConst& val)
 {
     out << fmt::format(
-        "{{ name: {}, set: {}, binding: {}, offset: {}, size: {}, members: {} }}",
+        "{{ name: {}, set: {}, binding: {}, stage: {}, offset: {}, size: {}, members: {} }}",
         val.name,
         val.set,
         val.binding,
+        val.stage,
         val.offset,
         val.size,
         val.members);

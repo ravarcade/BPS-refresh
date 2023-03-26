@@ -39,9 +39,20 @@ struct ShaderReflections
 {
     ShaderReflections(){};
     ShaderReflections(std::vector<MemoryBuffer>&&);
+    // ToDo: use concept to limit T
+    template <typename T>
+    ShaderReflections(const T& programs)
+    {
+        for (auto& program : programs)
+        {
+            compile(program);
+        }
+        parseReqults();
+    }
     ~ShaderReflections();
 
     void compile(MemoryBuffer);
+    void parseReqults();
     // void reset(VkCommandBuffer);
     // void begin(VkCommandBuffer);
     // void end(VkCommandBuffer);
@@ -62,3 +73,5 @@ struct ShaderReflections
 } // namespace renderingEngine
 
 template <> struct fmt::formatter<renderingEngine::ShaderReflections> : ostream_formatter {};
+template <> struct fmt::formatter<renderingEngine::ResourceLayout> : ostream_formatter {};
+template <> struct fmt::formatter<renderingEngine::ResourceLayout::DescriptorSetLayout> : ostream_formatter {};

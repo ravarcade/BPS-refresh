@@ -8,10 +8,9 @@ namespace tools
 template <typename SrcContainer, typename Converter>
 auto to_vector(const SrcContainer& src, Converter converter)
 {
-    using itemType = decltype(converter(*src.begin()));
+    using itemType = decltype(converter(*std::begin(src)));
     std::vector<itemType> out;
-    out.reserve(src.size());
-    std::transform(src.begin(), src.end(), std::back_inserter(out), converter);
+    std::transform(std::begin(src), std::end(src), std::back_inserter(out), converter);
     return out;
 }
 } // namespace tools
