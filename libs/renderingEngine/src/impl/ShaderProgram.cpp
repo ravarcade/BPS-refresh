@@ -46,7 +46,7 @@ struct hash<std::pair<std::string, uint32_t>>
 namespace
 {
 using namespace renderingEngine;
-constexpr auto sourceCode(const char* msg)
+auto sourceCode(const char* msg)
 {
     auto begin = reinterpret_cast<const uint8_t*>(msg);
     return MemoryBuffer(begin, strlen(msg));

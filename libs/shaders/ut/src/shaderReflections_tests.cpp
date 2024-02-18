@@ -10,7 +10,7 @@ using namespace renderingEngine;
 
 namespace {
 
-constexpr auto sourceCode(const char* msg)
+auto sourceCode(const char* msg)
 {
     auto begin = reinterpret_cast<const uint8_t*>(msg);
     return MemoryBuffer(begin, strlen(msg));
@@ -105,9 +105,9 @@ void main()
 TEST(shaderReflections, compileAndParseVertexShader)
 {
     ShaderCompiler sut;
-    auto bin = sut.compile(shaderProgram);
+    std::vector<MemoryBuffer> bin{sut.compile(shaderProgram)};
     tools::writeFile("testShader.bin", bin); // for testing and manual comparation of results with glslc.exe
-    ShaderReflections sr({bin});
+    ShaderReflections sr(bin);
     EXPECT_TRUE(true);
 }
 

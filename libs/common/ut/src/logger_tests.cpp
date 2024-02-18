@@ -11,8 +11,8 @@ namespace
 struct ComplicatedStruct
 {
     std::string s {};
-    int i{};
-    float f{};
+    int i{73};
+    float f{3.1415f};
     friend std::ostream& operator<<(std::ostream& out, const ComplicatedStruct& src) {
         return out << fmt::format("{{s: \"{}\", i: {}, f: {}}}", src.s, src.i, src.f);
     };

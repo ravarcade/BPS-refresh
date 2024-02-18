@@ -5,6 +5,7 @@
 #include <ranges>
 #include "importer/decode.hpp"
 #include "tools/base64.hpp"
+#include "common/enumFormatter.hpp"
 
 namespace
 {

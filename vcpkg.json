@@ -1,0 +1,44 @@
+{
+  "name": "bps",
+  "version": "0.1.0",
+  "dependencies": [
+    "fmt",
+    "glfw3",
+    "glm",
+    "glslang",
+    "gtest",
+    "imgui",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "vulkan-binding"
+      ]
+    },
+    {
+      "name": "sdl2",
+      "features": [
+        "vulkan"
+      ]
+    },
+    {
+      "name": "sdl2-image",
+      "features": [
+        "libjpeg-turbo",
+        "libwebp"
+      ]
+    },
+    "spirv-cross",
+    "spirv-reflect",
+    "sqlite3",
+    "vulkan",
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "sdl2",
+      "version": "2.28.5#0"
+    }
+  ],
+  "builtin-baseline": "13bde2ff13192e1b2fdd37bd9b475c7665ae6ae5"
+}

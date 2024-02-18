@@ -10,6 +10,7 @@
 #include <fmt/ranges.h>
 #include <string_view>
 #include <thread>
+#include "enumFormatter.hpp"
 
 enum class LogLevel
 {

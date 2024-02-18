@@ -1,18 +1,18 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 set(MODULE_NAME ravtest)
 
-set(SOURCES 
+set(SOURCES
     src/main.cpp
 )
 
-set(HEADERS 
+set(HEADERS
 )
 
 add_executable(${MODULE_NAME} ${SOURCES} ${HEADERS})
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
-target_link_libraries(ravtest 
-    PRIVATE 
+target_link_libraries(ravtest
+    PRIVATE
         bps::importer
         bps::engine
         fmt::fmt

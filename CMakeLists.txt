@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 
 # VCPKG_TARGET_TRIPLET = x64-mingw-dynamic // debug
 #                      = x64-mingw-static // release (?)
